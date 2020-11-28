@@ -2,7 +2,7 @@
 
 Voici un projet qui s'intéresse à la mise en place d'un chatBot sur Telegram avec Java, la discussion sera définie sur un thème définit.</br>
 Le but final est de trouver un système pour que le bot réponde intelligemment à des phrases qu'un utilisateur lui proposera, en fonction du contexte.</br>
-A ce jour, une base de données est nécessaire pour stocker des mots clés, en rappot avec des phrases "questions", qui sont liées à des phrases "réponses", pour permettre au bot de répondre. </br>
+A ce jour, une base de données est nécessaire pour stocker des mots clés, en rapport avec des phrases "questions", qui sont liées à des phrases "réponses" pour permettre au bot de répondre. </br>
 Pour effectuer la mise en route de ce projet, il est nécessaire que vous possédiez votre propre bot.
 
 ## Création du bot
@@ -35,4 +35,6 @@ public class UserConstants
 ```
 
 ## Mise en route
-Une fois installé vous n'aurez qu'à exécuter le fichier <b>src/core/Main.java</b> et votre bot sera fonctionnel.
+Une fois installé vous n'aurez qu'à exécuter le fichier <b>src/core/Main.java</b> et votre bot sera fonctionnel.</br>
+C'est à dire qu'il regardera régulièrement si un utilisateur lui envoie un message pour le traiter. </br>
+Ensuite il faudra gérer une base de données pour que le bot puisse voir les mots clés des questions qu'on lui posera, afin qu'il trouve une réponse parmis celles renseignées.</br>

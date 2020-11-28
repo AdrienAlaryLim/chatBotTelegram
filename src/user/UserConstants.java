@@ -7,8 +7,8 @@ public class UserConstants
 	private static final String sqlUrl = "jdbc:mysql://127.0.0.1:3306/mydb_name";
 	
 	// Define your telegram bot token API key
-	// ex: 1234567890:MyTelegramByAPIKeyHash
-	private static final String botToken = "1234567890:MyTelegramByAPIKeyHash";
+	// ex: 1234567890:MyTelegramBotAPIKeyHash
+	private static final String botToken = "1234567890:MyTelegramBotAPIKeyHash";
 	
 	// Define your telegram bot username
 	// ex: MyTelegramBotUsername

@@ -20,16 +20,24 @@ public class UserConstants
 {
 	// Define your url to connect to your database with your database name
 	// ex : jdbc:mysql://127.0.0.1:3306/mydb_name
+	
 	private static final String sqlUrl = "jdbc:mysql://127.0.0.1:3306/mydb_name";
 	
+	// Your database user
+	// ex : john
+	private static final String sqlUser = "john";
+	
+	// Your password to acces database
+	// ex : Pa$$w0rd
+	private static final String sqlPassword = "Pa$$w0rd";
+	
 	// Define your telegram bot token API key
-	// ex: 1234567890:MyTelegramByAPIKeyHash
-	private static final String botToken = "1234567890:MyTelegramByAPIKeyHash";
+	// ex: 1234567890:MyTelegramBotAPIKeyHash
+	private static final String botToken = "1234567890:MyTelegramBotAPIKeyHash";
 	
 	// Define your telegram bot username
 	// ex: MyTelegramBotUsername
 	private static final String botUsername = "MyTelegramBotUsername";
-  
 	{...}
 }
 ```
@@ -38,3 +46,8 @@ public class UserConstants
 Une fois installé vous n'aurez qu'à exécuter le fichier <b>src/core/Main.java</b> et votre bot sera fonctionnel.</br>
 C'est à dire qu'il regardera régulièrement si un utilisateur lui envoie un message pour le traiter. </br>
 Ensuite il faudra gérer une base de données pour que le bot puisse voir les mots clés des questions qu'on lui posera, afin qu'il trouve une réponse parmis celles renseignées.</br>
+
+## Base de données et fonctionnement
+Mon schéma de fonctionnement actuel est de spliter la question posée par l'utilisateur, afin de faire rentrer tous les mots de la question dans un tableau. Ce tableau me sert de filtre lorsque j'accède à ma table "mots_cles". Ces mot clés sont attribués à des questions jugées comme "basiques" de ma problématique couverte. Chaque question est associée à plusieurs mots clés, ce qui me permet de retrouver par les mots clés splités la question "basique" qui se rapporche le plus. Toutes mes questions renvoie vers une réponse unique, une fois la question trouvée, je fait répondre à mon bot la réponse associée.
+
+

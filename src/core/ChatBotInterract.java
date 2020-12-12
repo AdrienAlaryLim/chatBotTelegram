@@ -12,6 +12,7 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import user.UserConstants;
+import user.UserDatabaseRequests;
 
 public class ChatBotInterract extends TelegramLongPollingBot 
 {
@@ -42,24 +43,8 @@ public class ChatBotInterract extends TelegramLongPollingBot
 	        SendMessage message = new SendMessage();
 	        
 	        message.setChatId(strChatId);
-	        message.setText(userMessageText); 
 	        
-	        try{
-	        	// 
-	        	Connection con = DriverManager.getConnection(sqlUrl, "root", "");
-				PreparedStatement ps = con.prepareStatement("SELECT * FROM questions WHERE id_question = 1"); 
-		        ResultSet rs = ps.executeQuery();
-		        
-		        while(rs.next())
-		        {
-		        	String question = rs.getString("QUESTION");
-		            message.setText(question); 
-		        }
-	            con.close();
-			}
-			catch(SQLException  e) {
-				e.printStackTrace();
-			}
+	        message.setText(Treatment.returnMessage(userMessageText));
 	        
 	        try {
 	            execute(message); // Sending our message object to user
@@ -68,4 +53,6 @@ public class ChatBotInterract extends TelegramLongPollingBot
 	        }
 	    }
 	}
+	
+	
 }

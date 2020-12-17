@@ -5,6 +5,9 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 
 import user.UserConstants;
 import user.UserDatabaseRequests;
@@ -30,25 +33,18 @@ public class Treatment {
 	        ResultSet rs = ps.executeQuery();
 	        System.out.println("Array string filter: " + sqlArrayKeywordFilter);
 	        
-	        System.out.println(UserDatabaseRequests.buildSelectMotsClesIn(sqlArrayKeywordFilter));
-	        
-	        String[] keyWordsFound = {};
-	        int countUserKeyWords = 0;
+	        List<String> keyWordsFound = new ArrayList<>();
 	        while(rs.next())
 	        {
-	        	keyWordsFound[countUserKeyWords] = rs.getString("MOT");
-	        	countUserKeyWords++;
+	        	keyWordsFound.add(rs.getString("MOT"));
+	        	System.out.println(rs.getString("MOT"));
 	        }
 	        
-	        String valeur = "1";
-	        
-	        System.out.println(keyWordsFound[countUserKeyWords]);
-	        System.out.println(buildSqlFilterString(keyWordsFound));
-	        
-	        if(keyWordsFound[0] != null)
+	        if(Boolean.FALSE.equals(keyWordsFound.isEmpty()))
 	        {
-		        int[] arrayOfQuestionsFound = {};
+	        	HashMap<String, Integer> mapOfQuestionsFound = new HashMap<>();
 		        String sqlArrayQuestionFilter = buildSqlFilterString(keyWordsFound);
+		        int higestFoundQuestionId = 0;
 		        
 		        System.out.println(UserDatabaseRequests.buildSelectQuestionsByMotsClesIn(sqlArrayQuestionFilter));
 		        
@@ -58,40 +54,18 @@ public class Treatment {
 		        
 	        	while(rs.next())
 		        {
-	        		int idQuestion = rs.getInt("ID_QUESTION");
-	        		
-	        		for(int id : arrayOfQuestionsFound)
-	        		{
-	        			if(idQuestion == id)
-		        		{
-		        			arrayOfQuestionsFound[idQuestion] ++;
-		        			
-		        		}
-	        			else
-	        			{
-	        				arrayOfQuestionsFound[idQuestion] = 1;
-	        			}
-	        		}
+	        		String idQuestion = rs.getString("ID_QUESTION");
+	        		higestFoundQuestionId = getHigestFoundQuestionId(mapOfQuestionsFound, idQuestion);
 		        }
-	        	
-		        System.out.println("idQuestion found: " + arrayOfQuestionsFound);
 		        
-	        	int idQuestionFound = 0;
-	        	for(int id : arrayOfQuestionsFound)
-	    		{
-	        		if(id > idQuestionFound)
-	        		{
-	        			idQuestionFound = id;
-	        		}
-	    		}
-	        	
-	        	ps = con.prepareStatement(UserDatabaseRequests.buildSelectReponseByQuestionId(idQuestionFound)); 
+	        	ps = con.prepareStatement(UserDatabaseRequests.buildSelectReponseByQuestionId(higestFoundQuestionId)); 
 		        rs = ps.executeQuery();
 		        
+		        System.out.println(UserDatabaseRequests.buildSelectReponseByQuestionId(higestFoundQuestionId));
 		        
 	        	while(rs.next())
 		        {
-	        		botResponse = rs.getString("REPONSE");
+	        		botResponse = rs.getString("RESPONSE");
 		        }
 	        	
 	        }
@@ -128,4 +102,50 @@ public class Treatment {
 	    
 	    return sqlStringArrayFilter;
     }
+	
+	/**
+	 * Build a string shaped in array to be used as a filter in sql query
+	 * @param arrayString
+	 * @return String
+	 */
+	private static String buildSqlFilterString(List<String> arrayString)
+    {
+		String sqlStringArrayFilter = "(";
+	    int count = 1;
+		
+	    for(String string : arrayString)
+	    {
+	    	sqlStringArrayFilter = sqlStringArrayFilter + "'" + string + "'";
+	    	
+	    	if(arrayString.size() != count)
+	    	{
+	    		sqlStringArrayFilter = sqlStringArrayFilter + ",";
+	    		count++;
+	    	}else
+	    	{
+	    		sqlStringArrayFilter = sqlStringArrayFilter + ")";
+	    	}
+	    }
+	    
+	    return sqlStringArrayFilter;
+    }
+	
+	private static int getHigestFoundQuestionId(HashMap<String, Integer> mapOfQuestionsFound, String idQuestion)
+    {
+		int countMaxValue = 0 ;
+		try {
+			int countIdFound = mapOfQuestionsFound.get(idQuestion);
+			mapOfQuestionsFound.put(idQuestion, countIdFound+1);
+			if(countIdFound > countMaxValue)
+    		{
+				countMaxValue = Integer.parseInt(idQuestion);
+    		}
+		}catch(Exception  e) {
+			mapOfQuestionsFound.put(idQuestion, 1);
+		}
+		
+		System.out.println("idQuestion found: " + idQuestion);
+		return countMaxValue;
+    }
+	
 }

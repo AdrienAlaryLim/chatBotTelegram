@@ -12,7 +12,7 @@ import user.UserDatabaseRequests;
 public class Treatment {
 	
 	/**
-	 * Return the response that the bot have to send.
+	 * Return the response that the bot have to send. 
 	 * @param userMessageText the message sent by the user
 	 * @return
 	 */
@@ -21,22 +21,80 @@ public class Treatment {
 		String botResponse = userMessageText;
 		String[] splitWords = userMessageText.split(" ");
     
-	    String sqlStringArrayFilter = buildSqlFilterString(splitWords);
+	    String sqlArrayKeywordFilter = buildSqlFilterString(splitWords);
 	    
 	    try{
 	    	Connection con = DriverManager.getConnection(UserConstants.getSqlUrl(), UserConstants.getSqlUser(), UserConstants.getSqlPassword());
 	    	
-	    	PreparedStatement ps = con.prepareStatement(UserDatabaseRequests.buildSelectMotsClesIn(sqlStringArrayFilter)); 
+	    	PreparedStatement ps = con.prepareStatement(UserDatabaseRequests.buildSelectMotsClesIn(sqlArrayKeywordFilter)); 
 	        ResultSet rs = ps.executeQuery();
-	        System.out.println("Array string filter: " + sqlStringArrayFilter);
+	        System.out.println("Array string filter: " + sqlArrayKeywordFilter);
 	        
+	        System.out.println(UserDatabaseRequests.buildSelectMotsClesIn(sqlArrayKeywordFilter));
+	        
+	        String[] keyWordsFound = {};
+	        int countUserKeyWords = 0;
 	        while(rs.next())
 	        {
-	        	String question = rs.getString("MOT");
-	        	botResponse = question; 
-	            System.out.println("Result set: " + question);
+	        	keyWordsFound[countUserKeyWords] = rs.getString("MOT");
+	        	countUserKeyWords++;
 	        }
 	        
+	        String valeur = "1";
+	        
+	        System.out.println(keyWordsFound[countUserKeyWords]);
+	        System.out.println(buildSqlFilterString(keyWordsFound));
+	        
+	        if(keyWordsFound[0] != null)
+	        {
+		        int[] arrayOfQuestionsFound = {};
+		        String sqlArrayQuestionFilter = buildSqlFilterString(keyWordsFound);
+		        
+		        System.out.println(UserDatabaseRequests.buildSelectQuestionsByMotsClesIn(sqlArrayQuestionFilter));
+		        
+		        con = DriverManager.getConnection(UserConstants.getSqlUrl(), UserConstants.getSqlUser(), UserConstants.getSqlPassword());
+		        ps = con.prepareStatement(UserDatabaseRequests.buildSelectQuestionsByMotsClesIn(sqlArrayQuestionFilter)); 
+		        rs = ps.executeQuery();
+		        
+	        	while(rs.next())
+		        {
+	        		int idQuestion = rs.getInt("ID_QUESTION");
+	        		
+	        		for(int id : arrayOfQuestionsFound)
+	        		{
+	        			if(idQuestion == id)
+		        		{
+		        			arrayOfQuestionsFound[idQuestion] ++;
+		        			
+		        		}
+	        			else
+	        			{
+	        				arrayOfQuestionsFound[idQuestion] = 1;
+	        			}
+	        		}
+		        }
+	        	
+		        System.out.println("idQuestion found: " + arrayOfQuestionsFound);
+		        
+	        	int idQuestionFound = 0;
+	        	for(int id : arrayOfQuestionsFound)
+	    		{
+	        		if(id > idQuestionFound)
+	        		{
+	        			idQuestionFound = id;
+	        		}
+	    		}
+	        	
+	        	ps = con.prepareStatement(UserDatabaseRequests.buildSelectReponseByQuestionId(idQuestionFound)); 
+		        rs = ps.executeQuery();
+		        
+		        
+	        	while(rs.next())
+		        {
+	        		botResponse = rs.getString("REPONSE");
+		        }
+	        	
+	        }
 	        con.close();
 		}
 		catch(SQLException  e) {
@@ -45,7 +103,6 @@ public class Treatment {
 	    
 	    return botResponse;
 	}
-	
 	
 	/**
 	 * Build a string shaped in array to be used as a filter in sql query

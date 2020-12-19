@@ -26,54 +26,19 @@ public class Treatment {
     
 	    String sqlArrayKeywordFilter = buildSqlFilterString(splitWords);
 	    
-	    try{
-	    	Connection con = DriverManager.getConnection(UserConstants.getSqlUrl(), UserConstants.getSqlUser(), UserConstants.getSqlPassword());
-	    	
-	    	PreparedStatement ps = con.prepareStatement(UserDatabaseRequests.buildSelectMotsClesIn(sqlArrayKeywordFilter)); 
-	        ResultSet rs = ps.executeQuery();
-	        System.out.println("Array string filter: " + sqlArrayKeywordFilter);
+	    List<String> keyWordsFound = sendSqlQuery(UserDatabaseRequests.buildSelectMotsClesIn(sqlArrayKeywordFilter), UserDatabaseRequests.getColumnMot());
+	    
+	    if(Boolean.FALSE.equals(keyWordsFound.isEmpty()))
+        {
+        	HashMap<String, Integer> mapOfQuestionsFound = new HashMap<>();
+	        String sqlArrayQuestionFilter = buildSqlFilterString(keyWordsFound);
+	        int higestFoundQuestionId = 0;
 	        
-	        List<String> keyWordsFound = new ArrayList<>();
-	        while(rs.next())
-	        {
-	        	keyWordsFound.add(rs.getString("MOT"));
-	        	System.out.println(rs.getString("MOT"));
-	        }
+	        List<String> listOfIdQuestionsFound = sendSqlQuery(UserDatabaseRequests.buildSelectQuestionsByMotsClesIn(sqlArrayQuestionFilter), UserDatabaseRequests.getColumnIdQuestion());
+	    	higestFoundQuestionId = getHigestFoundQuestionId(mapOfQuestionsFound, listOfIdQuestionsFound);
 	        
-	        if(Boolean.FALSE.equals(keyWordsFound.isEmpty()))
-	        {
-	        	HashMap<String, Integer> mapOfQuestionsFound = new HashMap<>();
-		        String sqlArrayQuestionFilter = buildSqlFilterString(keyWordsFound);
-		        int higestFoundQuestionId = 0;
-		        
-		        System.out.println(UserDatabaseRequests.buildSelectQuestionsByMotsClesIn(sqlArrayQuestionFilter));
-		        
-		        con = DriverManager.getConnection(UserConstants.getSqlUrl(), UserConstants.getSqlUser(), UserConstants.getSqlPassword());
-		        ps = con.prepareStatement(UserDatabaseRequests.buildSelectQuestionsByMotsClesIn(sqlArrayQuestionFilter)); 
-		        rs = ps.executeQuery();
-		        
-	        	while(rs.next())
-		        {
-	        		String idQuestion = rs.getString("ID_QUESTION");
-	        		higestFoundQuestionId = getHigestFoundQuestionId(mapOfQuestionsFound, idQuestion);
-		        }
-		        
-	        	ps = con.prepareStatement(UserDatabaseRequests.buildSelectReponseByQuestionId(higestFoundQuestionId)); 
-		        rs = ps.executeQuery();
-		        
-		        System.out.println(UserDatabaseRequests.buildSelectReponseByQuestionId(higestFoundQuestionId));
-		        
-	        	while(rs.next())
-		        {
-	        		botResponse = rs.getString("RESPONSE");
-		        }
-	        	
-	        }
-	        con.close();
-		}
-		catch(SQLException  e) {
-			e.printStackTrace();
-		}
+	        botResponse = sendSqlQuery(UserDatabaseRequests.buildSelectReponseByQuestionId(higestFoundQuestionId), UserDatabaseRequests.getColumnResponse()).get(0);
+        }
 	    
 	    return botResponse;
 	}
@@ -130,22 +95,61 @@ public class Treatment {
 	    return sqlStringArrayFilter;
     }
 	
-	private static int getHigestFoundQuestionId(HashMap<String, Integer> mapOfQuestionsFound, String idQuestion)
+	/**
+	 * Get the id of the question the most represented
+	 * @param mapOfQuestionsFound
+	 * @param listOfIdQuestion
+	 * @return int
+	 */
+	private static int getHigestFoundQuestionId(HashMap<String, Integer> mapOfQuestionsFound, List<String> listOfIdQuestion)
     {
 		int countMaxValue = 0 ;
-		try {
+		for(String idQuestion : listOfIdQuestion)
+		{
+			try {
 			int countIdFound = mapOfQuestionsFound.get(idQuestion);
 			mapOfQuestionsFound.put(idQuestion, countIdFound+1);
 			if(countIdFound > countMaxValue)
     		{
 				countMaxValue = Integer.parseInt(idQuestion);
     		}
-		}catch(Exception  e) {
-			mapOfQuestionsFound.put(idQuestion, 1);
+			}catch(Exception  e) {
+				mapOfQuestionsFound.put(idQuestion, 1);
+			}
 		}
 		
-		System.out.println("idQuestion found: " + idQuestion);
 		return countMaxValue;
     }
+	
+	/**
+	 * Build and send the SQL query to the database. 
+	 * Return a List of string, containing the result of the request.
+	 * @param sqlStringRequest 
+	 * @param sqlColumn 
+	 * @return List<String>
+	 */
+	private static List<String> sendSqlQuery(String sqlStringRequest, String sqlColumn)
+	{
+		List<String> sqlResponse = new ArrayList<>();
+		
+		try{
+	    	Connection con = DriverManager.getConnection(UserConstants.getSqlUrl(), UserConstants.getSqlUser(), UserConstants.getSqlPassword());
+	    	
+	    	PreparedStatement ps = con.prepareStatement(sqlStringRequest); 
+	        ResultSet rs = ps.executeQuery();
+	        
+	        while(rs.next())
+	        {
+	        	sqlResponse.add(rs.getString(sqlColumn));
+	        }
+	        
+	        con.close();
+		 }
+		 catch(SQLException  e) {
+				e.printStackTrace();
+		 }
+		 
+		 return sqlResponse;
+	}
 	
 }

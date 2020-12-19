@@ -1,18 +1,11 @@
 package core;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import user.UserConstants;
-import user.UserDatabaseRequests;
 
 public class ChatBotInterract extends TelegramLongPollingBot 
 {
@@ -25,7 +18,7 @@ public class ChatBotInterract extends TelegramLongPollingBot
 	
 	@Override
     public String getBotUsername() {
-        return UserConstants.getBotusername();
+        return UserConstants.getBotUsername();
     }
 	
 	@Override

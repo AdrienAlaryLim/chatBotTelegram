@@ -4,6 +4,10 @@ public class UserDatabaseRequests {
 	
 	private static final String SELECT_QUESTION_BY_ID = "SELECT * FROM questions WHERE id_question = ";
 	
+	private static final String SELECT_QUESTION_BY_WHOLE_WORDS = "SELECT * FROM questions WHERE question = '";
+	
+	private static final String INSERT_QUESTION = "INSERT INTO questions (question, date_question) VALUES ";
+	
 	private static final String SELECT_RESPONSE_BY_QUESTION_ID = "SELECT * FROM reponses r "
 			+ "INNER JOIN repondre ON  r.id_reponse = repondre.id_reponse "
 			+ "INNER JOIN questions q ON q.id_question = repondre.id_question "
@@ -15,6 +19,8 @@ public class UserDatabaseRequests {
 			+ "INNER JOIN contenir ON  q.id_question = contenir.id_question "
 			+ "INNER JOIN mots_cles ON mots_cles.id_mot_cle = contenir.id_mot_cle "
 			+ "WHERE mots_cles.mot IN ";
+	
+	private static final String COLUMN_QUESTION = "QUESTION";
 	
 	private static final String COLUMN_MOT = "MOT";
 	
@@ -30,6 +36,26 @@ public class UserDatabaseRequests {
 	public static String buildSelectQuestionById(int idQuestion) 
 	{
 		return SELECT_QUESTION_BY_ID + String.valueOf(idQuestion);
+	}
+	
+	/**
+	 * Build the request to find question by the given id
+	 * @param idQuestion the question id
+	 * @return String selectQuestionById
+	 */
+	public static String buildSelectQuestionByWholeWords(String question) 
+	{
+		return SELECT_QUESTION_BY_WHOLE_WORDS + question + "'";
+	}
+	
+	/**
+	 * Build the insert question values request
+	 * @param idQuestion the question id
+	 * @return String selectQuestionById
+	 */
+	public static String buildInsertQuestionValues(String values) 
+	{
+		return INSERT_QUESTION + values ;
 	}
 	
 	/**
@@ -58,6 +84,14 @@ public class UserDatabaseRequests {
 	 */
 	public static String buildSelectQuestionsByMotsClesIn(String stringFilterArray) {
 		return SELECT_QUESTIONS_BY_MOTS_CLES_IN + stringFilterArray;
+	}
+
+	/**
+	 * Return the string for column "COLUMN_QUESTION"
+	 * @return
+	 */
+	public static String getColumnQuestion() {
+		return COLUMN_QUESTION;
 	}
 
 	/**

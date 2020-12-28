@@ -32,6 +32,11 @@ public class Treatment {
 			int intIdQuestion = Integer.valueOf(resultReturnIdQuestion);
 			
 			botResponse = returnQueryStringResponse(UserDatabaseRequests.buildSelectReponseByQuestionId(intIdQuestion), UserDatabaseRequests.getColumnResponse());
+			
+			if(botResponse == null)
+			{
+				throw new Exception("The response of this question is not answered");
+			}
 		}catch(Exception e)
 		{
 			

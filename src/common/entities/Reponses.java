@@ -1,4 +1,4 @@
-package entities;
+package common.entities;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -7,14 +7,14 @@ import javax.persistence.Table;
 
 @Entity
 @Table(name = "CONTENIR")
-public class Responses {
+public class Reponses {
 	
 	@Id
 	@Column(name = "ID_REPONSE")
 	private int idReponse;
 
 	@Column(name = "RESPONSE")
-	private int reponse;
+	private String reponse;
 
 	public int getIdReponse() {
 		return idReponse;
@@ -24,11 +24,11 @@ public class Responses {
 		this.idReponse = idReponse;
 	}
 
-	public int getReponse() {
+	public String getReponse() {
 		return reponse;
 	}
 
-	public void setReponse(int reponse) {
+	public void setReponse(String reponse) {
 		this.reponse = reponse;
 	}
 }

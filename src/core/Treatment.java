@@ -11,9 +11,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import common.bo.QuestionsBo;
-import common.boTransformer.QuestionsBoTransformer;
-import common.dao.QuestionsDao;
 import user.UserConstants;
 import user.UserDatabaseRequests;
 

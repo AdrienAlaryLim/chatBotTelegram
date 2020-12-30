@@ -11,10 +11,15 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import common.bo.QuestionsBo;
+import common.boTransformer.QuestionsBoTransformer;
+import common.dao.QuestionsDao;
 import user.UserConstants;
 import user.UserDatabaseRequests;
 
 public class Treatment {
+	
+	private static final String ERROR = "error";
 	
 	/**
 	 * Return the response that the bot have to send. 
@@ -23,43 +28,62 @@ public class Treatment {
 	 */
 	public static String returnMessage(String userMessageText)
 	{		
-		System.out.println("");
+		System.out.println("Begin treatment");
 		String botResponse = userMessageText;
 		
 		try {
+			System.out.println("Try to found question");
+			
 			String resultReturnIdQuestion = returnQueryStringResponse(UserDatabaseRequests.buildSelectQuestionByWholeWords(userMessageText), UserDatabaseRequests.getColumnIdQuestion());
-			System.out.println(resultReturnIdQuestion);
+			System.out.println("The id of the question : " + resultReturnIdQuestion);
 			int intIdQuestion = Integer.valueOf(resultReturnIdQuestion);
 			
 			botResponse = returnQueryStringResponse(UserDatabaseRequests.buildSelectReponseByQuestionId(intIdQuestion), UserDatabaseRequests.getColumnResponse());
 			
-			if(botResponse == null)
+			System.out.println("Answer of that question : " + botResponse);
+			
+			if(botResponse == "" || botResponse == null || botResponse == ERROR)
 			{
 				throw new Exception("The response of this question is not answered");
 			}
 		}catch(Exception e)
 		{
-			
-			prepareInsertQuestion(userMessageText);
-			
-			String[] splitWords = userMessageText.split(" ");
-	    
-		    String sqlArrayKeywordFilter = buildSqlFilterString(splitWords);
+			try {
+				System.out.println("The research block of question has failed");
+				System.out.println("Insert the new question");
+				prepareInsertQuestion(userMessageText);
+			}finally {
+				
+				String[] splitWords = userMessageText.split(" ");
 		    
-		    List<String> keyWordsFound = returnQueryArrayResponse(UserDatabaseRequests.buildSelectMotsClesIn(sqlArrayKeywordFilter), UserDatabaseRequests.getColumnMot());
-		    
-		    if(Boolean.FALSE.equals(keyWordsFound.isEmpty()))
-	        {
-	        	HashMap<String, Integer> mapOfQuestionsFound = new HashMap<>();
-		        String sqlArrayQuestionFilter = buildSqlFilterString(keyWordsFound);
-		        int higestFoundQuestionId = 0;
-		        
-		        List<String> listOfIdQuestionsFound = returnQueryArrayResponse(UserDatabaseRequests.buildSelectQuestionsByMotsClesIn(sqlArrayQuestionFilter), UserDatabaseRequests.getColumnIdQuestion());
-		    	higestFoundQuestionId = getHigestFoundQuestionId(mapOfQuestionsFound, listOfIdQuestionsFound);
-		        
-		        botResponse = returnQueryStringResponse(UserDatabaseRequests.buildSelectReponseByQuestionId(higestFoundQuestionId), UserDatabaseRequests.getColumnResponse());
-	        }
+			    String sqlArrayKeywordFilter = buildSqlFilterString(splitWords);
+			    
+			    System.out.println("Search related keywords in database");
+			    List<String> keyWordsFound = returnQueryArrayResponse(UserDatabaseRequests.buildSelectMotsClesIn(sqlArrayKeywordFilter), UserDatabaseRequests.getColumnMot());
+			    
+			    if(Boolean.FALSE.equals(keyWordsFound.isEmpty()))
+		        {
+			    	System.out.println("Search the highest number of matching keywords");
+		        	HashMap<String, Integer> mapOfQuestionsFound = new HashMap<>();
+			        String sqlArrayQuestionFilter = buildSqlFilterString(keyWordsFound);
+			        int higestFoundQuestionId = 0;
+			        
+			        List<String> listOfIdQuestionsFound = returnQueryArrayResponse(UserDatabaseRequests.buildSelectQuestionsByMotsClesIn(sqlArrayQuestionFilter), UserDatabaseRequests.getColumnIdQuestion());
+			    	higestFoundQuestionId = getHigestFoundQuestionId(mapOfQuestionsFound, listOfIdQuestionsFound);
+			        
+			    	System.out.println("Return the response with the higher rating");
+			    	
+			        botResponse = returnQueryStringResponse(UserDatabaseRequests.buildSelectReponseByQuestionId(higestFoundQuestionId), UserDatabaseRequests.getColumnResponse());
+		        }
+			}
 		}
+		
+		if(botResponse.equals(ERROR))
+		{
+			
+        	botResponse = userMessageText;
+		}
+		
 		return botResponse;
 	}
 	
@@ -182,6 +206,7 @@ public class Treatment {
 	private static String returnQueryStringResponse(String sqlStringRequest, String sqlColumn)
 	{
 		String sqlResponse = new String();
+		Boolean resultIsNull = Boolean.TRUE;
 		
 		try{
 	    	Connection con = DriverManager.getConnection(UserConstants.getSqlUrl(), UserConstants.getSqlUser(), UserConstants.getSqlPassword());
@@ -191,13 +216,20 @@ public class Treatment {
 	        
 	        while(rs.next())
 	        {
+	        	resultIsNull = Boolean.FALSE;
 	        	sqlResponse = rs.getString(sqlColumn);
+	        }
+	        
+	        if(resultIsNull)
+	        {
+	        	throw new SQLException("Request response not found");
 	        }
 	        
 	        con.close();
 		 }
 		 catch(SQLException  e) {
 				e.printStackTrace();
+				sqlResponse = ERROR;
 		 }
 		 
 		 return sqlResponse;

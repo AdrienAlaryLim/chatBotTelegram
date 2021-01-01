@@ -1,22 +1,14 @@
 package core;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
-import user.UserConstants;
 import user.UserDatabaseRequests;
 
 public class Treatment {
-	
-	private static final String ERROR = "error";
 	
 	/**
 	 * Return the response that the bot have to send. 
@@ -27,55 +19,78 @@ public class Treatment {
 	{		
 		System.out.println("Begin treatment");
 		String botResponse = userMessageText;
+		Boolean questionExists = Boolean.FALSE;
 		
 		try {
 			System.out.println("Try to found question");
 			
-			String resultReturnIdQuestion = returnQueryStringResponse(UserDatabaseRequests.buildSelectQuestionByWholeWords(userMessageText), UserDatabaseRequests.getColumnIdQuestion());
+			String resultReturnIdQuestion = RequestTreatment.returnQueryStringResponse(UserDatabaseRequests.buildSelectQuestionByWholeWords(userMessageText), UserDatabaseRequests.getColumnIdQuestion());
 			System.out.println("The id of the question : " + resultReturnIdQuestion);
 			int intIdQuestion = Integer.valueOf(resultReturnIdQuestion);
 			
-			botResponse = returnQueryStringResponse(UserDatabaseRequests.buildSelectReponseByQuestionId(intIdQuestion), UserDatabaseRequests.getColumnResponse());
+			questionExists = Boolean.TRUE;
+			
+			botResponse = RequestTreatment.returnQueryStringResponse(UserDatabaseRequests.buildSelectReponseByQuestionId(intIdQuestion), UserDatabaseRequests.getColumnResponse());
 			
 			System.out.println("Answer of that question : " + botResponse);
 			
-			if(botResponse == "" || botResponse == null || botResponse == ERROR)
+			if(botResponse == "" || botResponse == null || botResponse == RequestTreatment.ERROR)
 			{
 				throw new Exception("The response of this question is not answered");
 			}
 		}catch(Exception e)
 		{
-			try {
-				System.out.println("The research block of question has failed");
+			System.out.println("The research block of question has failed");
+			if (questionExists.equals(Boolean.FALSE))
+			{
 				System.out.println("Insert the new question");
-				prepareInsertQuestion(userMessageText);
-			}finally {
-				
-				String[] splitWords = userMessageText.split(" ");
-		    
-			    String sqlArrayKeywordFilter = buildSqlFilterString(splitWords);
-			    
-			    System.out.println("Search related keywords in database");
-			    List<String> keyWordsFound = returnQueryArrayResponse(UserDatabaseRequests.buildSelectMotsClesIn(sqlArrayKeywordFilter), UserDatabaseRequests.getColumnMot());
-			    
-			    if(Boolean.FALSE.equals(keyWordsFound.isEmpty()))
-		        {
-			    	System.out.println("Search the highest number of matching keywords");
-		        	HashMap<String, Integer> mapOfQuestionsFound = new HashMap<>();
-			        String sqlArrayQuestionFilter = buildSqlFilterString(keyWordsFound);
-			        int higestFoundQuestionId = 0;
-			        
-			        List<String> listOfIdQuestionsFound = returnQueryArrayResponse(UserDatabaseRequests.buildSelectQuestionsByMotsClesIn(sqlArrayQuestionFilter), UserDatabaseRequests.getColumnIdQuestion());
-			    	higestFoundQuestionId = getHigestFoundQuestionId(mapOfQuestionsFound, listOfIdQuestionsFound);
-			        
-			    	System.out.println("Return the response with the higher rating");
-			    	
-			        botResponse = returnQueryStringResponse(UserDatabaseRequests.buildSelectReponseByQuestionId(higestFoundQuestionId), UserDatabaseRequests.getColumnResponse());
-		        }
+				RequestTreatment.prepareInsertQuestion(userMessageText);
 			}
+			
+			String resultReturnIdQuestion = RequestTreatment.returnQueryStringResponse(UserDatabaseRequests.buildSelectQuestionByWholeWords(userMessageText), UserDatabaseRequests.getColumnIdQuestion());
+			System.out.println("The id of the question : " + resultReturnIdQuestion);
+			int intIdQuestionInserted = Integer.valueOf(resultReturnIdQuestion);
+				
+			String[] splitWords = userMessageText.split(" ");
+	    
+		    String sqlArrayKeywordFilter = buildSqlFilterString(splitWords);
+		    
+		    System.out.println("Search related keywords in database");
+		    List<String> keyWordsFound = RequestTreatment.returnQueryArrayResponse(UserDatabaseRequests.buildSelectMotsClesIn(sqlArrayKeywordFilter), UserDatabaseRequests.getColumnMot());
+		    
+		    if(Boolean.FALSE.equals(keyWordsFound.isEmpty()))
+	        {
+		    	System.out.println("Search the highest number of matching keywords");
+	        	HashMap<String, Integer> mapOfQuestionsFound = new HashMap<>();
+		        String sqlArrayQuestionFilter = buildSqlFilterString(keyWordsFound);
+		        
+		        System.out.println("Keywords found: " + sqlArrayQuestionFilter);
+		        
+		        int higestFoundQuestionId = 0;
+		        
+		        List<String> listOfIdQuestionsFound = RequestTreatment.returnQueryArrayResponse(UserDatabaseRequests.buildSelectQuestionsByMotsClesIn(sqlArrayQuestionFilter), UserDatabaseRequests.getColumnIdQuestion());
+		    	higestFoundQuestionId = getHigestFoundQuestionId(mapOfQuestionsFound, listOfIdQuestionsFound);
+		    	
+		    	System.out.println("Map questions found (idQuestion=numberOfKeywordsFound): " + mapOfQuestionsFound.toString());
+		    	
+		    	System.out.println("Return the response with the higher rating");
+		    	
+		    	int confidenceIndicator = setConfidenceIndicator(mapOfQuestionsFound, higestFoundQuestionId);
+		    	String conflictedQuestions = null;
+		    	if(mapOfQuestionsFound.size()>1)
+		    	{
+		    		conflictedQuestions = getStringOfIdConflictedQuestions(mapOfQuestionsFound);
+		    	}
+		    	
+		    	
+		    	int idReponse = Integer.parseInt(RequestTreatment.returnQueryStringResponse(UserDatabaseRequests.buildSelectReponseByQuestionId(higestFoundQuestionId), UserDatabaseRequests.getColumnIdResponse()));
+		        botResponse = RequestTreatment.returnQueryStringResponse(UserDatabaseRequests.buildSelectReponseByQuestionId(higestFoundQuestionId), UserDatabaseRequests.getColumnResponse());
+		        
+				System.out.println("Insert the response found to all the questions most represented");
+				RequestTreatment.prepareInsertAnswering(intIdQuestionInserted, idReponse, confidenceIndicator, conflictedQuestions);
+	        }
 		}
-		
-		if(botResponse.equals(ERROR))
+		if(botResponse.equals(RequestTreatment.ERROR))
 		{
 			
         	botResponse = userMessageText;
@@ -144,117 +159,86 @@ public class Treatment {
 	 */
 	private static int getHigestFoundQuestionId(HashMap<String, Integer> mapOfQuestionsFound, List<String> listOfIdQuestion)
     {
+		int idQuestionMostRepresented = 0;
 		int countMaxValue = 0 ;
 		for(String idQuestion : listOfIdQuestion)
 		{
 			try {
-			int countIdFound = mapOfQuestionsFound.get(idQuestion);
-			mapOfQuestionsFound.put(idQuestion, countIdFound+1);
+			int countIdFound = mapOfQuestionsFound.get(idQuestion) + 1;
+			mapOfQuestionsFound.put(idQuestion, countIdFound);
+			
+			System.out.println("Number of id '"+ idQuestion + "' found: " + countIdFound + " times");
 			if(countIdFound > countMaxValue)
     		{
-				countMaxValue = Integer.parseInt(idQuestion);
+				countMaxValue = countIdFound;
+				idQuestionMostRepresented = Integer.parseInt(idQuestion);
     		}
 			}catch(Exception  e) {
+				System.out.println("Add Id Question : " + idQuestion);
 				mapOfQuestionsFound.put(idQuestion, 1);
 			}
 		}
 		
-		return countMaxValue;
+		HashMap<String, Integer> mapOfMostQuestionsFound = new HashMap<>();
+		
+		Iterator<Entry<String, Integer>> it = mapOfQuestionsFound.entrySet().iterator();
+	    while (it.hasNext()) {
+	        Map.Entry<String, Integer> pair = (Map.Entry<String, Integer>)it.next();
+	        if(pair.getValue().equals(countMaxValue))
+			{
+				mapOfMostQuestionsFound.put(pair.getKey(),(Integer) pair.getValue());
+			}
+	        it.remove();
+	    }
+	    
+		mapOfQuestionsFound.clear();
+		mapOfQuestionsFound.putAll(mapOfMostQuestionsFound);
+		
+		return idQuestionMostRepresented;
     }
 	
 	/**
-	 * Build and send the SQL query to the database. 
-	 * Return a List of string, containing the result of the request.
-	 * @param sqlStringRequest 
-	 * @param sqlColumn 
-	 * @return List<String>
+	 * Set the confidence indicator
+	 * @param mapOfQuestionsFound
+	 * @param countMaxValue
+	 * @return int
 	 */
-	private static List<String> returnQueryArrayResponse(String sqlStringRequest, String sqlColumn)
-	{
-		List<String> sqlResponse = new ArrayList<>();
+	private static int setConfidenceIndicator(HashMap<String, Integer> mapOfQuestionsFound, int countMaxValue)
+    {
+		int confidenceIndicator = 100;
+    
+		confidenceIndicator = confidenceIndicator / mapOfQuestionsFound.size();
 		
-		try{
-	    	Connection con = DriverManager.getConnection(UserConstants.getSqlUrl(), UserConstants.getSqlUser(), UserConstants.getSqlPassword());
-	    	
-	    	PreparedStatement ps = con.prepareStatement(sqlStringRequest); 
-	        ResultSet rs = ps.executeQuery();
-	        
-	        while(rs.next())
-	        {
-	        	sqlResponse.add(rs.getString(sqlColumn));
-	        }
-	        
-	        con.close();
-		 }
-		 catch(SQLException  e) {
-				e.printStackTrace();
-		 }
-		 
-		 return sqlResponse;
-	}
+		return confidenceIndicator;
+    }
 	
 	/**
-	 * Build and send the SQL query to the database. 
-	 * Return a string, containing the result of the request.
-	 * @param sqlStringRequest 
-	 * @param sqlColumn 
-	 * @return List<String>
+	 * Return the string of the conflicted id questions
+	 * @param mapOfQuestionsFound
+	 * @return String
 	 */
-	private static String returnQueryStringResponse(String sqlStringRequest, String sqlColumn)
+	private static String getStringOfIdConflictedQuestions(HashMap<String, Integer> mapOfQuestionsFound)
 	{
-		String sqlResponse = new String();
-		Boolean resultIsNull = Boolean.TRUE;
-		
-		try{
-	    	Connection con = DriverManager.getConnection(UserConstants.getSqlUrl(), UserConstants.getSqlUser(), UserConstants.getSqlPassword());
-	    	
-	    	PreparedStatement ps = con.prepareStatement(sqlStringRequest); 
-	        ResultSet rs = ps.executeQuery();
+		String conflictedQuestionsString = "{";
+		int count = 0;
+		Iterator<Entry<String, Integer>> it = mapOfQuestionsFound.entrySet().iterator();
+	    while (it.hasNext()) {
+	        Map.Entry<String, Integer> pair = (Map.Entry<String, Integer>)it.next();
 	        
-	        while(rs.next())
-	        {
-	        	resultIsNull = Boolean.FALSE;
-	        	sqlResponse = rs.getString(sqlColumn);
-	        }
+	        conflictedQuestionsString = conflictedQuestionsString + pair.getKey();
 	        
-	        if(resultIsNull)
-	        {
-	        	throw new SQLException("Request response not found");
-	        }
+	    	if(mapOfQuestionsFound.size() != count)
+	    	{
+	    		conflictedQuestionsString = conflictedQuestionsString + ",";
+	    		count++;
+	    	}else
+	    	{
+	    		conflictedQuestionsString = conflictedQuestionsString + "}";
+	    	}
 	        
-	        con.close();
-		 }
-		 catch(SQLException  e) {
-				e.printStackTrace();
-				sqlResponse = ERROR;
-		 }
-		 
-		 return sqlResponse;
+	        it.remove();
+	    }
+	    
+	    return conflictedQuestionsString;
 	}
-	
-	/**
-	 * Build and execute the insert question query
-	 * @param userQuestion the question asked by the user
-	 */
-	private static void prepareInsertQuestion(String userQuestion)
-	{
-		String date = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
-		System.out.println("('" + userQuestion + "', '" + date + "')");
-		String valuesInsert = "('" + userQuestion + "', '" + date + "')";
-		
-		String stringRequest = UserDatabaseRequests.buildInsertQuestionValues(valuesInsert);
-		
-		try{
-	    	Connection con = DriverManager.getConnection(UserConstants.getSqlUrl(), UserConstants.getSqlUser(), UserConstants.getSqlPassword());
-	    	
-	    	PreparedStatement ps = con.prepareStatement(stringRequest); 
-	        ps.execute();
-	        
-	        con.close();
-		 }
-		 catch(SQLException  e) {
-				e.printStackTrace();
-		 }
-	}
-	
 }

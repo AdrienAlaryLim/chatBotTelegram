@@ -8,6 +8,8 @@ public class UserDatabaseRequests {
 	
 	private static final String INSERT_QUESTION = "INSERT INTO questions (question, date_question) VALUES ";
 	
+	private static final String INSERT_ANSWERING = "INSERT INTO repondre (id_question, id_reponse, date_reponse, confiance, questions_associees) VALUES ";
+	
 	private static final String SELECT_RESPONSE_BY_QUESTION_ID = "SELECT * FROM reponses r "
 			+ "INNER JOIN repondre ON  r.id_reponse = repondre.id_reponse "
 			+ "INNER JOIN questions q ON q.id_question = repondre.id_question "
@@ -27,6 +29,8 @@ public class UserDatabaseRequests {
 	private static final String COLUMN_ID_QUESTION = "ID_QUESTION";
 	
 	private static final String COLUMN_RESPONSE = "RESPONSE";
+	
+	private static final String COLUMN_ID_RESPONSE = "ID_REPONSE";
 	
 	/**
 	 * Build the request to find question by the given id
@@ -56,6 +60,16 @@ public class UserDatabaseRequests {
 	public static String buildInsertQuestionValues(String values) 
 	{
 		return INSERT_QUESTION + values ;
+	}
+	
+	/**
+	 * Build the insert answering values request
+	 * @param idQuestion the question id
+	 * @return String selectQuestionById
+	 */
+	public static String buildInsertAnsweringValues(String values) 
+	{
+		return INSERT_ANSWERING + values ;
 	}
 	
 	/**
@@ -118,4 +132,11 @@ public class UserDatabaseRequests {
 		return COLUMN_RESPONSE;
 	}
 	
+	/**
+	 * Return the string for column "ID_RESPONSE"
+	 * @return String
+	 */
+	public static String getColumnIdResponse() {
+		return COLUMN_ID_RESPONSE;
+	}
 }

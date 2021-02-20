@@ -8,11 +8,7 @@ import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
 
 import user.UserConstants;
 import user.UserDatabaseRequests;
@@ -34,7 +30,6 @@ public class RequestTreatment {
 		
 		try{
 	    	Connection con = DriverManager.getConnection(UserConstants.getSqlUrl(), UserConstants.getSqlUser(), UserConstants.getSqlPassword());
-	    	
 	    	PreparedStatement ps = con.prepareStatement(sqlStringRequest); 
 	        ResultSet rs = ps.executeQuery();
 	        
@@ -69,7 +64,7 @@ public class RequestTreatment {
 	    	
 	    	PreparedStatement ps = con.prepareStatement(sqlStringRequest); 
 	        ResultSet rs = ps.executeQuery();
-	        
+        
 	        while(rs.next())
 	        {
 	        	resultIsNull = Boolean.FALSE;

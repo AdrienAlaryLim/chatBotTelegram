@@ -68,46 +68,32 @@ public class Treatment {
 		    if(Boolean.FALSE.equals(keyWordsFound.isEmpty()))
 	        {
 		    	System.out.println("Search the highest number of matching keywords");
-	        	//HashMap<String, Integer> mapOfQuestionsFound = new HashMap<>();
-		        //String[] sqlArrayQuestionFilter = buildSqlFilterString(keyWordsFound);
-		        //System.out.println("Keywords found: " + sqlArrayQuestionFilter);
-		        
-	        	//getKeywordMostRepresented();
-	        	
 	        	HashMap<String, Integer> mapOfKeywords = new HashMap<>();
 	        	
 	        	List<String> listOfMaxMatchingKeywords = getHigestFoundKeyword(mapOfKeywords, keyWordsFound, splitWords);
+	        		        	
+		    	List<String> listIdKeywords = RequestTreatment.returnQueryArrayResponse(UserDatabaseRequests.buildSelectIdMotsClesByMotCle(buildSqlKeywordsFindIdString(listOfMaxMatchingKeywords)), UserDatabaseRequests.getColumnIdMotCle());
 	        	
+		    	//List<String> listIdKeywords = RequestTreatment.returnQueryArrayResponse(UserDatabaseRequests.buildSelectIdMotsClesByMotCle(sqlArrayKeywordFilter), UserDatabaseRequests.getColumnIdMotCle());
 	        	
-		        int higestFoundQuestionId = 0;
-		        
-		        
 		        List<String> listOfIdQuestionsFound = RequestTreatment.returnQueryArrayResponse(UserDatabaseRequests.buildSelectReponseByMotsCles(listOfMaxMatchingKeywords.get(0)), UserDatabaseRequests.getColumnIdResponse());
+		       	
+		    	System.out.println("Return the response with the higher keyword rating");
 		    	
-		        //List<String> listOfIdQuestionsFound = RequestTreatment.returnQueryArrayResponse(UserDatabaseRequests.buildSelectReponseByMotsCles(listOfMaxMatchingKeywords.get(0)), UserDatabaseRequests.getColumnResponse());
+		    	int confidenceIndicator = setConfidenceIndicatorToKeywords(listIdKeywords);
+		    	String conflictedKeywords = null;
 		    	
-		        //botResponse = listOfIdQuestionsFound.get(0);
-		        
-		       // higestFoundQuestionId = getHigestFoundQuestionId(mapOfQuestionsFound, listOfIdQuestionsFound);
-		    	
-		    	/*System.out.println("Map questions found (idQuestion=numberOfKeywordsFound): " + mapOfQuestionsFound.toString());
-		    	
-		    	System.out.println("Return the response with the higher rating");
-		    	
-		    	int confidenceIndicator = setConfidenceIndicator(mapOfQuestionsFound, higestFoundQuestionId);
-		    	String conflictedQuestions = null;
-		    	if(mapOfQuestionsFound.size()>1)
+		    	if(listIdKeywords.size()>1)
 		    	{
-		    		conflictedQuestions = getStringOfIdConflictedQuestions(mapOfQuestionsFound);
+		    		conflictedKeywords = getStringOfIdConflictedKeywords(listIdKeywords);
 		    	}
-		    	*/
+		    	
 		    	int idReponse = Integer.parseInt(RequestTreatment.returnQueryStringResponse(UserDatabaseRequests.buildSelectReponseByQuestionId(Integer.parseInt(listOfIdQuestionsFound.get(0))), UserDatabaseRequests.getColumnIdResponse()));
-		        botResponse = RequestTreatment.returnQueryStringResponse(UserDatabaseRequests.buildSelectReponseByQuestionId(idReponse), UserDatabaseRequests.getColumnResponse());
-		        
+		    	System.out.println("Idresponse parsed");
+		    	botResponse = RequestTreatment.returnQueryStringResponse(UserDatabaseRequests.buildSelectReponseByQuestionId(idReponse), UserDatabaseRequests.getColumnResponse());
 		        
 				System.out.println("Insert the response found to all the questions most represented");
-				RequestTreatment.prepareInsertAnswering(intIdQuestionInserted, idReponse, 100, null);
-				//RequestTreatment.prepareInsertAnswering(intIdQuestionInserted, idReponse, confidenceIndicator, conflictedQuestions);
+				RequestTreatment.prepareInsertAnswering(intIdQuestionInserted, idReponse, confidenceIndicator, conflictedKeywords);
 	        }
 		}
 		if(botResponse.equals(RequestTreatment.ERROR))
@@ -142,26 +128,6 @@ public class Treatment {
 	    		count++;
 	    	}
 	    }
-	    
-		/*if(arrayString.length > 1)
-    	{
-		    for(int i=1; i<arrayString.length; i++)
-		    {
-		    	String stringIterate = arrayString[i];
-		    	
-		    	if(stringIterate.length() > 3) 
-		    	{
-			    	if(stringIterate.endsWith("s") || stringIterate.endsWith("e"))
-			    	sqlStringArrayFilter = sqlStringArrayFilter + " OR mot LIKE '%" + stringIterate.substring( 1, stringIterate.length() - 1 ) + ";%'";
-			    	
-		    	}
-		    	else 
-		    	{
-		    		sqlStringArrayFilter = sqlStringArrayFilter + " OR mot LIKE '%" + arrayString[i] + "?;%'";
-		    	}
-		    	sqlStringArrayFilter = sqlStringArrayFilter + " OR mot LIKE '%" + arrayString[i] + ";%'";
-		    }
-    	}*/
 	    return sqlStringArrayFilter;
     }
 	
@@ -170,34 +136,9 @@ public class Treatment {
 	 * @param arrayString
 	 * @return String
 	 */
-	/*private static String buildSqlFilterString(String[] arrayString)
+	private static String buildSqlKeywordsFindIdString(List<String> arrayString)
     {
-		String sqlStringArrayFilter = "(";
-	    
-	    for(int i=0; i<arrayString.length; i++)
-	    {
-	    	sqlStringArrayFilter = sqlStringArrayFilter + "'" + arrayString[i] + "'";
-	    	
-	    	if(i != arrayString.length-1)
-	    	{
-	    		sqlStringArrayFilter = sqlStringArrayFilter + ",";
-	    	}else
-	    	{
-	    		sqlStringArrayFilter = sqlStringArrayFilter + ")";
-	    	}
-	    }
-	    
-	    return sqlStringArrayFilter;
-    }*/
-	
-	/**
-	 * Build a string shaped in array to be used as a filter in sql query
-	 * @param arrayString
-	 * @return String
-	 */
-	/*private static String buildSqlFilterString(List<String> arrayString)
-    {
-		String sqlStringArrayFilter = "(";
+		String sqlStringArrayFilter = "mot = ";
 	    int count = 1;
 		
 	    for(String string : arrayString)
@@ -206,44 +147,15 @@ public class Treatment {
 	    	
 	    	if(arrayString.size() != count)
 	    	{
-	    		sqlStringArrayFilter = sqlStringArrayFilter + ",";
+	    		sqlStringArrayFilter = sqlStringArrayFilter + " OR mot = ";
 	    		count++;
-	    	}else
-	    	{
-	    		sqlStringArrayFilter = sqlStringArrayFilter + ")";
 	    	}
 	    }
 	    
-	    return sqlStringArrayFilter;
-    }*/
-	
-	/**
-	 * Build a string shaped in array to be used as a filter in sql query
-	 * @param arrayString
-	 * @return String
-	 */
-	/*private static String buildSqlFilterString(List<String> arrayString)
-    {
-		String sqlStringArrayFilter = "(";
-	    int count = 1;
-		
-	    for(String string : arrayString)
-	    {
-	    	sqlStringArrayFilter = sqlStringArrayFilter + "'" + string + "'";
-	    	
-	    	if(arrayString.size() != count)
-	    	{
-	    		sqlStringArrayFilter = sqlStringArrayFilter + ",";
-	    		count++;
-	    	}else
-	    	{
-	    		sqlStringArrayFilter = sqlStringArrayFilter + ")";
-	    	}
-	    }
+	    System.out.println("Keyword for find keyword_id : " + sqlStringArrayFilter);
 	    
 	    return sqlStringArrayFilter;
-    }*/
-	
+    }
 	
 	/**
 	 * Get the keyword the most represented
@@ -282,7 +194,6 @@ public class Treatment {
         			else if(countKeywordFound > countMaxKeywordFound)
             		{
         				countMaxKeywordFound = countKeywordFound;
-        				//keywordMostRepresented = ;
         				maxMatchingKeywords.clear();
         				maxMatchingKeywords.add(keywords);
             		}
@@ -310,64 +221,16 @@ public class Treatment {
 		return maxMatchingKeywords;
     }
 	
-	
 	/**
-	 * Get the id of the question the most represented
+	 * Set the confidence indicator to keywords
 	 * @param mapOfQuestionsFound
-	 * @param listOfIdQuestion
 	 * @return int
 	 */
-	private static int getHigestFoundQuestionId(HashMap<String, Integer> mapOfQuestionsFound, List<String> listOfIdQuestion)
-    {
-		int idQuestionMostRepresented = 0;
-		int countMaxValue = 0 ;
-		for(String idQuestion : listOfIdQuestion)
-		{
-			try {
-			int countIdFound = mapOfQuestionsFound.get(idQuestion) + 1;
-			mapOfQuestionsFound.put(idQuestion, countIdFound);
-			
-			System.out.println("Number of id '"+ idQuestion + "' found: " + countIdFound + " times");
-			if(countIdFound > countMaxValue)
-    		{
-				countMaxValue = countIdFound;
-				idQuestionMostRepresented = Integer.parseInt(idQuestion);
-    		}
-			}catch(Exception  e) {
-				System.out.println("Add Id Question : " + idQuestion);
-				mapOfQuestionsFound.put(idQuestion, 1);
-			}
-		}
-		
-		HashMap<String, Integer> mapOfMostQuestionsFound = new HashMap<>();
-		
-		Iterator<Entry<String, Integer>> it = mapOfQuestionsFound.entrySet().iterator();
-	    while (it.hasNext()) {
-	        Map.Entry<String, Integer> pair = (Map.Entry<String, Integer>)it.next();
-	        if(pair.getValue().equals(countMaxValue))
-			{
-				mapOfMostQuestionsFound.put(pair.getKey(),(Integer) pair.getValue());
-			}
-	        it.remove();
-	    }
-	    
-		mapOfQuestionsFound.clear();
-		mapOfQuestionsFound.putAll(mapOfMostQuestionsFound);
-		
-		return idQuestionMostRepresented;
-    }
-	
-	/**
-	 * Set the confidence indicator
-	 * @param mapOfQuestionsFound
-	 * @param countMaxValue
-	 * @return int
-	 */
-	private static int setConfidenceIndicator(HashMap<String, Integer> mapOfQuestionsFound, int countMaxValue)
+	private static int setConfidenceIndicatorToKeywords(List<String> listOfMaxKeywords)
     {
 		int confidenceIndicator = 100;
-    
-		confidenceIndicator = confidenceIndicator / mapOfQuestionsFound.size();
+		System.out.println("Number of conflicted : " + listOfMaxKeywords.size());
+		confidenceIndicator = confidenceIndicator / listOfMaxKeywords.size();
 		
 		return confidenceIndicator;
     }
@@ -377,17 +240,16 @@ public class Treatment {
 	 * @param mapOfQuestionsFound
 	 * @return String
 	 */
-	private static String getStringOfIdConflictedQuestions(HashMap<String, Integer> mapOfQuestionsFound)
+	private static String getStringOfIdConflictedKeywords(List<String> listOfKeywordsId)
 	{
 		String conflictedQuestionsString = "{";
-		int count = 0;
-		Iterator<Entry<String, Integer>> it = mapOfQuestionsFound.entrySet().iterator();
-	    while (it.hasNext()) {
-	        Map.Entry<String, Integer> pair = (Map.Entry<String, Integer>)it.next();
+		int count = 1;
+		
+	    for(String keywords : listOfKeywordsId)
+	    {	        
+	        conflictedQuestionsString = conflictedQuestionsString + keywords;
 	        
-	        conflictedQuestionsString = conflictedQuestionsString + pair.getKey();
-	        
-	    	if(mapOfQuestionsFound.size() != count)
+	    	if(listOfKeywordsId.size() != count)
 	    	{
 	    		conflictedQuestionsString = conflictedQuestionsString + ",";
 	    		count++;
@@ -395,8 +257,6 @@ public class Treatment {
 	    	{
 	    		conflictedQuestionsString = conflictedQuestionsString + "}";
 	    	}
-	        
-	        it.remove();
 	    }
 	    
 	    return conflictedQuestionsString;

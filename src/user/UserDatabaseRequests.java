@@ -8,7 +8,7 @@ public class UserDatabaseRequests {
 	
 	private static final String INSERT_QUESTION = "INSERT INTO questions (question, date_question) VALUES ";
 	
-	private static final String INSERT_ANSWERING = "INSERT INTO repondre (id_question, id_reponse, date_reponse, confiance, questions_associees) VALUES ";
+	private static final String INSERT_ANSWERING = "INSERT INTO repondre (id_question, id_reponse, date_reponse, confiance, mots_cles_associes) VALUES ";
 	
 	private static final String SELECT_RESPONSE_BY_QUESTION_ID = "SELECT * FROM reponses r "
 			+ "INNER JOIN repondre ON  r.id_reponse = repondre.id_reponse "
@@ -20,6 +20,8 @@ public class UserDatabaseRequests {
 	//private static final String SELECT_MOTS_CLE_IN = "SELECT * FROM mots_cles WHERE mot IN ";
 	
 	private static final String SELECT_MOTS_CLE_IN = "SELECT * FROM mots_cles WHERE mot ";
+	
+	private static final String SELECT_MOTS_CLE_BY_MOT = "SELECT * FROM mots_cles WHERE ";
 	
 	private static final String SELECT_QUESTIONS_BY_MOTS_CLES_IN = "SELECT * FROM questions q "
 			+ "INNER JOIN contenir ON  q.id_question = contenir.id_question "
@@ -41,6 +43,8 @@ public class UserDatabaseRequests {
 	private static final String COLUMN_QUESTION = "QUESTION";
 	
 	private static final String COLUMN_MOT = "MOT";
+	
+	private static final String COLUMN_ID_MOT_CLE = "ID_MOT_CLE";
 	
 	private static final String COLUMN_ID_QUESTION = "ID_QUESTION";
 	
@@ -118,14 +122,22 @@ public class UserDatabaseRequests {
 	}
 	
 	/**
+	 * Build the request "select id_mot_cle by mot" with the given array
+	 * @param stringFilterArray the filtering array
+	 * @return String selectMotsClesIn
+	 */
+	public static String buildSelectIdMotsClesByMotCle(String stringFilterArray) {
+		System.out.println(SELECT_MOTS_CLE_BY_MOT + stringFilterArray);
+		return SELECT_MOTS_CLE_BY_MOT + stringFilterArray;
+	}
+	
+	/**
 	 * Build the request "select questions by mots cles IN" with the given array
 	 * @param stringFilterArray the filtering array
 	 * @return String selectQuestionsByMotsClesIn
 	 */
 	public static String buildSelectQuestionsByMotsClesIn(String stringFilterArray) {
-		System.out.println(SELECT_QUESTIONS_BY_MOTS_CLES_IN + stringFilterArray);
 		return SELECT_QUESTIONS_BY_MOTS_CLES_IN + stringFilterArray;
-		
 	}
 	
 	/**
@@ -137,9 +149,7 @@ public class UserDatabaseRequests {
 		
 		stringFilterArray = "'" + stringFilterArray + "'";
 			
-		System.out.println(SELECT_QUESTIONS_BY_MOTS_CLES_IN + stringFilterArray);
 		return SELECT_QUESTIONS_BY_MOTS_CLES_IN + stringFilterArray;
-		
 	}
 	
 	/**
@@ -151,7 +161,6 @@ public class UserDatabaseRequests {
 		
 		stringFilterArray = "'" + stringFilterArray + "'";
 			
-		System.out.println(SELECT_QUESTIONS_BY_MOTS_CLES_IN + stringFilterArray);
 		return SELECT_REPONSE_BY_MOTS_CLES_IN + stringFilterArray;
 		
 	}
@@ -171,6 +180,14 @@ public class UserDatabaseRequests {
 	 */
 	public static String getColumnMot() {
 		return COLUMN_MOT;
+	}
+	
+	/**
+	 * Return the string for column "ID_MOT_CLE"
+	 * @return String
+	 */
+	public static String getColumnIdMotCle() {
+		return COLUMN_ID_MOT_CLE;
 	}
 
 	/**

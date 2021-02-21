@@ -71,7 +71,12 @@ public class Treatment {
 	        	HashMap<String, Integer> mapOfKeywords = new HashMap<>();
 	        	
 	        	List<String> listOfMaxMatchingKeywords = getHigestFoundKeyword(mapOfKeywords, keyWordsFound, splitWords);
-	        		        	
+	        		        
+	        	if(listOfMaxMatchingKeywords.isEmpty())
+	        	{
+	        		return userMessageText;
+	        	}
+	        	
 		    	List<String> listIdKeywords = RequestTreatment.returnQueryArrayResponse(UserDatabaseRequests.buildSelectIdMotsClesByMotCle(buildSqlKeywordsFindIdString(listOfMaxMatchingKeywords)), UserDatabaseRequests.getColumnIdMotCle());
 	        	
 		    	//List<String> listIdKeywords = RequestTreatment.returnQueryArrayResponse(UserDatabaseRequests.buildSelectIdMotsClesByMotCle(sqlArrayKeywordFilter), UserDatabaseRequests.getColumnIdMotCle());

@@ -9,10 +9,7 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
 
 import user.UserConstants;
 import user.UserDatabaseRequests;
@@ -34,7 +31,6 @@ public class RequestTreatment {
 		
 		try{
 	    	Connection con = DriverManager.getConnection(UserConstants.getSqlUrl(), UserConstants.getSqlUser(), UserConstants.getSqlPassword());
-	    	
 	    	PreparedStatement ps = con.prepareStatement(sqlStringRequest); 
 	        ResultSet rs = ps.executeQuery();
 	        
@@ -69,7 +65,7 @@ public class RequestTreatment {
 	    	
 	    	PreparedStatement ps = con.prepareStatement(sqlStringRequest); 
 	        ResultSet rs = ps.executeQuery();
-	        
+        
 	        while(rs.next())
 	        {
 	        	resultIsNull = Boolean.FALSE;
@@ -120,11 +116,14 @@ public class RequestTreatment {
 	 * Build and execute the insert question query
 	 * @param userQuestion the question asked by the user
 	 */
-	public static void prepareInsertAnswering(int intIdQuestionInserted,int responseId, int confidentIndicator, String stringConflictedQuestionId )
+	public static void prepareInsertAnswering(int intIdQuestionInserted,int responseId, int confidentIndicator, String conflictedKeywords )
 	{
 		String date = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
-		System.out.println("('"+ intIdQuestionInserted + "', '" + responseId + "', '" + date + "', '"+ confidentIndicator + "', '" + stringConflictedQuestionId + "')");
-		String valuesInsert = "('"+ intIdQuestionInserted + "', '" + responseId + "', '" + date + "', '"+ confidentIndicator + "', '" + stringConflictedQuestionId + "')";
+		
+		conflictedKeywords = conflictedKeywords == null ?  null : "'" + conflictedKeywords + "'";
+		
+		System.out.println("('"+ intIdQuestionInserted + "', '" + responseId + "', '" + date + "', '"+ confidentIndicator + "', " + conflictedKeywords + ")");
+		String valuesInsert = "('"+ intIdQuestionInserted + "', '" + responseId + "', '" + date + "', '"+ confidentIndicator + "', " + conflictedKeywords + ")";
 		
 		String stringRequest = UserDatabaseRequests.buildInsertAnsweringValues(valuesInsert);
 		

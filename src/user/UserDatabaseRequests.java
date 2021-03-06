@@ -15,9 +15,7 @@ public class UserDatabaseRequests {
 			+ "INNER JOIN questions q ON q.id_question = repondre.id_question "
 			+ "WHERE q.id_question = ";
 	
-	private static final String SELECT_RESPONSE_ID_BY_RESPONSE = "SELECT response FROM reponse WHERE reponse.id_reponse = ";
-	
-	//private static final String SELECT_MOTS_CLE_IN = "SELECT * FROM mots_cles WHERE mot IN ";
+	private static final String SELECT_RESPONSE_BY_RESPONSE_ID = "SELECT response FROM reponses WHERE reponses.id_reponse = ";
 	
 	private static final String SELECT_MOTS_CLE_IN = "SELECT * FROM mots_cles WHERE mot ";
 	
@@ -32,11 +30,6 @@ public class UserDatabaseRequests {
 			+ "INNER JOIN repondre ON  repondre.id_reponse = r.id_reponse "
 			+ "INNER JOIN questions ON  questions.id_question = repondre.id_question "
 			+ "INNER JOIN contenir ON  contenir.id_question = questions.id_question "
-			+ "INNER JOIN mots_cles ON mots_cles.id_mot_cle = contenir.id_mot_cle "
-			+ "WHERE mots_cles.mot = ";
-	
-	private static final String SELECT_QUESTION_BY_MOTS_CLES = "SELECT * FROM questions q "
-			+ "INNER JOIN contenir ON  q.id_question = contenir.id_question "
 			+ "INNER JOIN mots_cles ON mots_cles.id_mot_cle = contenir.id_mot_cle "
 			+ "WHERE mots_cles.mot = ";
 	
@@ -97,9 +90,9 @@ public class UserDatabaseRequests {
 	 * @param idQuestion the question id
 	 * @return String selectReponseByQuestionId
 	 */
-	public static String buildSelectReponseByQuestionId(int idQuestion) 
+	public static String buildSelectReponseByQuestionId(String idQuestion) 
 	{
-		return SELECT_RESPONSE_BY_QUESTION_ID + String.valueOf(idQuestion);
+		return SELECT_RESPONSE_BY_QUESTION_ID + idQuestion;
 	}
 
 	/**
@@ -107,11 +100,11 @@ public class UserDatabaseRequests {
 	 * @param idQuestion the question id
 	 * @return String selectReponseByQuestionId
 	 */
-	public static String buildSelectReponseIdByReponse(String reponse) 
+	public static String buildSelectReponseByResponseId(String idResponse) 
 	{
-		return SELECT_RESPONSE_ID_BY_RESPONSE + String.valueOf(reponse);
+		return SELECT_RESPONSE_BY_RESPONSE_ID + idResponse;
 	}
-	
+
 	/**
 	 * Build the request "select in mots cles IN" with the given array
 	 * @param stringFilterArray the filtering array
@@ -127,7 +120,6 @@ public class UserDatabaseRequests {
 	 * @return String selectMotsClesIn
 	 */
 	public static String buildSelectIdMotsClesByMotCle(String stringFilterArray) {
-		System.out.println(SELECT_MOTS_CLE_BY_MOT + stringFilterArray);
 		return SELECT_MOTS_CLE_BY_MOT + stringFilterArray;
 	}
 	

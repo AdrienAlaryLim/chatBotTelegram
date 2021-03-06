@@ -30,81 +30,82 @@ public class Treatment {
 		try {
 			System.out.println("Try to found question");
 			
-			String resultReturnIdQuestion = RequestTreatment.returnQueryStringResponse(UserDatabaseRequests.buildSelectQuestionByWholeWords(userMessageText), UserDatabaseRequests.getColumnIdQuestion());
-			System.out.println("The id of the question : " + resultReturnIdQuestion);
-			int intIdQuestion = Integer.valueOf(resultReturnIdQuestion);
+			String intIdQuestion = RequestTreatment.returnQueryStringResponse(UserDatabaseRequests.buildSelectQuestionByWholeWords(userMessageText), UserDatabaseRequests.getColumnIdQuestion());
+			System.out.println("The id of the question : " + intIdQuestion);
 			
 			questionExists = Boolean.TRUE;
 			
 			botResponse = RequestTreatment.returnQueryStringResponse(UserDatabaseRequests.buildSelectReponseByQuestionId(intIdQuestion), UserDatabaseRequests.getColumnResponse());
 			
-			System.out.println("Answer of that question : " + botResponse);
-			
-			if(botResponse == "" || botResponse == null || botResponse == RequestTreatment.ERROR)
+			if(botResponse == null || botResponse.trim().isEmpty())
 			{
 				throw new Exception("The response of this question is not answered");
 			}
-		}catch(Exception e)
+		}catch(Exception exectionPrimary)
 		{
-			System.out.println("The research block of question has failed");
-			if (questionExists.equals(Boolean.FALSE))
-			{
-				System.out.println("Insert the new question");
-				RequestTreatment.prepareInsertQuestion(userMessageText);
-			}
-			
-			String resultReturnIdQuestion = RequestTreatment.returnQueryStringResponse(UserDatabaseRequests.buildSelectQuestionByWholeWords(userMessageText), UserDatabaseRequests.getColumnIdQuestion());
-			System.out.println("The id of the question : " + resultReturnIdQuestion);
-			int intIdQuestionInserted = Integer.valueOf(resultReturnIdQuestion);
+			try {
 				
-			List<String> splitWords = new ArrayList<String>(Arrays.asList(userMessageText.split(" ")));
-	    
-		    String sqlArrayKeywordFilter = buildSqlFilterString(splitWords);
+				System.out.println("The research block of question has failed");
+				if (questionExists.equals(Boolean.FALSE))
+				{
+					System.out.println("Insert the new question");
+					RequestTreatment.prepareInsertQuestion(userMessageText);
+				}
+				
+				String resultReturnIdQuestion = RequestTreatment.returnQueryStringResponse(UserDatabaseRequests.buildSelectQuestionByWholeWords(userMessageText), UserDatabaseRequests.getColumnIdQuestion());
+				System.out.println("The id of the question : " + resultReturnIdQuestion);
+				int intIdQuestionInserted = Integer.valueOf(resultReturnIdQuestion);
+					
+				List<String> splitWords = new ArrayList<String>(Arrays.asList(userMessageText.split(" ")));
 		    
-		    
-		    System.out.println("Search related keywords in database");
-		    List<String> keyWordsFound = RequestTreatment.returnQueryArrayResponse(UserDatabaseRequests.buildSelectMotsClesIn(sqlArrayKeywordFilter), UserDatabaseRequests.getColumnMot());
-		    
-		    if(Boolean.FALSE.equals(keyWordsFound.isEmpty()))
-	        {
-		    	System.out.println("Search the highest number of matching keywords");
-	        	HashMap<String, Integer> mapOfKeywords = new HashMap<>();
-	        	
-	        	List<String> listOfMaxMatchingKeywords = getHigestFoundKeyword(mapOfKeywords, keyWordsFound, splitWords);
-	        		        
-	        	if(listOfMaxMatchingKeywords.isEmpty())
-	        	{
-	        		return userMessageText;
-	        	}
-	        	
-		    	List<String> listIdKeywords = RequestTreatment.returnQueryArrayResponse(UserDatabaseRequests.buildSelectIdMotsClesByMotCle(buildSqlKeywordsFindIdString(listOfMaxMatchingKeywords)), UserDatabaseRequests.getColumnIdMotCle());
-	        	
-		    	//List<String> listIdKeywords = RequestTreatment.returnQueryArrayResponse(UserDatabaseRequests.buildSelectIdMotsClesByMotCle(sqlArrayKeywordFilter), UserDatabaseRequests.getColumnIdMotCle());
-	        	
-		        List<String> listOfIdQuestionsFound = RequestTreatment.returnQueryArrayResponse(UserDatabaseRequests.buildSelectReponseByMotsCles(listOfMaxMatchingKeywords.get(0)), UserDatabaseRequests.getColumnIdResponse());
-		       	
-		    	System.out.println("Return the response with the higher keyword rating");
-		    	
-		    	int confidenceIndicator = setConfidenceIndicatorToKeywords(listIdKeywords);
-		    	String conflictedKeywords = null;
-		    	
-		    	if(listIdKeywords.size()>1)
-		    	{
-		    		conflictedKeywords = getStringOfIdConflictedKeywords(listIdKeywords);
-		    	}
-		    	
-		    	int idReponse = Integer.parseInt(RequestTreatment.returnQueryStringResponse(UserDatabaseRequests.buildSelectReponseByQuestionId(Integer.parseInt(listOfIdQuestionsFound.get(0))), UserDatabaseRequests.getColumnIdResponse()));
-		    	System.out.println("Idresponse parsed");
-		    	botResponse = RequestTreatment.returnQueryStringResponse(UserDatabaseRequests.buildSelectReponseByQuestionId(idReponse), UserDatabaseRequests.getColumnResponse());
-		        
-				System.out.println("Insert the response found to all the questions most represented");
-				RequestTreatment.prepareInsertAnswering(intIdQuestionInserted, idReponse, confidenceIndicator, conflictedKeywords);
-	        }
-		}
-		if(botResponse.equals(RequestTreatment.ERROR))
-		{
-			
-        	botResponse = userMessageText;
+			    String sqlArrayKeywordFilter = buildSqlFilterString(splitWords);
+			    
+			    System.out.println("Search related keywords matching to : " + sqlArrayKeywordFilter);
+			    
+			    List<String> keyWordsFound = RequestTreatment.returnQueryArrayResponse(UserDatabaseRequests.buildSelectMotsClesIn(sqlArrayKeywordFilter), UserDatabaseRequests.getColumnMot());
+			    
+			    if(Boolean.FALSE.equals(keyWordsFound.isEmpty()))
+		        {
+			    	System.out.println("Search the highest number of matching keywords");
+		        	HashMap<String, Integer> mapOfKeywords = new HashMap<>();
+		        	
+		        	List<String> listOfMaxMatchingKeywords = getHigestFoundKeyword(mapOfKeywords, keyWordsFound, splitWords);
+		        	
+			    	List<String> listIdKeywords = RequestTreatment.returnQueryArrayResponse(UserDatabaseRequests.buildSelectIdMotsClesByMotCle(buildSqlKeywordsFindIdString(listOfMaxMatchingKeywords)), UserDatabaseRequests.getColumnIdMotCle());
+		        	
+			    	System.out.println("Return the response with the higher keyword rating");
+			    	
+			    	int confidenceIndicator = setConfidenceIndicatorToKeywords(listIdKeywords);
+			    	
+			    	System.out.println("Give a keyword confidence indicator : " + confidenceIndicator);
+			    	
+			    	String conflictedKeywords = null;
+			    	if(listIdKeywords.size()>1)
+			    	{
+			    		conflictedKeywords = getStringOfIdConflictedKeywords(listIdKeywords);
+			    	}
+			    	
+			    	System.out.println("Return the list of conflicted keywords : " + conflictedKeywords);
+			    	
+			        String idResponseFound = RequestTreatment.returnQueryStringResponse(UserDatabaseRequests.buildSelectReponseByMotsCles(listOfMaxMatchingKeywords.get(0)), UserDatabaseRequests.getColumnIdResponse());
+			        System.out.println("For the first occurence of keyword \"" + listOfMaxMatchingKeywords.get(0) + "\" --> response id = " + idResponseFound);
+			    	
+			        if(botResponse == null || botResponse.trim().isEmpty())
+					{
+						throw new Exception("The response of this question is not answered");
+					}
+			        
+			    	botResponse = RequestTreatment.returnQueryStringResponse(UserDatabaseRequests.buildSelectReponseByResponseId(idResponseFound), UserDatabaseRequests.getColumnResponse());
+			    	System.out.println("Final bot response : " + botResponse);
+			    	
+					System.out.println("Insert the response found to all the questions most represented");
+					RequestTreatment.prepareInsertAnswering(intIdQuestionInserted, idResponseFound, confidenceIndicator, conflictedKeywords);
+		        }
+			}
+			catch(Exception exectionSecond)
+			{
+				botResponse = userMessageText;
+			}
 		}
 		
 		return botResponse;
@@ -127,7 +128,7 @@ public class Treatment {
 				sqlStringArrayFilter = "LIKE '%" + string + "/%'";
 				count ++;
 			}
-			else if(arrayString.size() != count)
+			else 
 	    	{
 	    		sqlStringArrayFilter = sqlStringArrayFilter + " OR mot LIKE '%" + string + "/%'";
 	    		count++;
@@ -191,7 +192,7 @@ public class Treatment {
         			mapOfKeyword.put(keywords, mapOfKeyword.get(keywords) + 1); 
         			countKeywordFound++;
         			
-        			System.out.println("Keyword '"+ keywords + "' found: " + countKeywordFound + " times");
+        			System.out.println("     Keyword '"+ keywords + "' found: " + countKeywordFound + " times");
         			if(countKeywordFound == countMaxKeywordFound)
         			{
         				maxMatchingKeywords.add(keywords);
@@ -206,7 +207,7 @@ public class Treatment {
         		}
         	}
         }
-        System.out.println("Keywords found: " + mapOfKeyword.toString());
+        System.out.println("Map complete Keywords found: " + mapOfKeyword.toString());
 		
 		HashMap<String, Integer> mapOfMostQuestionsFound = new HashMap<>();
 		
@@ -222,6 +223,8 @@ public class Treatment {
 	    
 	    mapOfKeyword.clear();
 	    mapOfKeyword.putAll(mapOfMostQuestionsFound);
+	    
+	    System.out.println("Keywords found: " + mapOfMostQuestionsFound.toString());
 		
 		return maxMatchingKeywords;
     }

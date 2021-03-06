@@ -16,8 +16,6 @@ import user.UserDatabaseRequests;
 
 public class RequestTreatment {
 	
-	public static final String ERROR = "error";
-	
 	/**
 	 * Build and send the SQL query to the database. 
 	 * Return a List of string, containing the result of the request.
@@ -58,7 +56,6 @@ public class RequestTreatment {
 	public static String returnQueryStringResponse(String sqlStringRequest, String sqlColumn)
 	{
 		String sqlResponse = new String();
-		Boolean resultIsNull = Boolean.TRUE;
 		
 		try{
 	    	Connection con = DriverManager.getConnection(UserConstants.getSqlUrl(), UserConstants.getSqlUser(), UserConstants.getSqlPassword());
@@ -68,20 +65,14 @@ public class RequestTreatment {
         
 	        while(rs.next())
 	        {
-	        	resultIsNull = Boolean.FALSE;
 	        	sqlResponse = rs.getString(sqlColumn);
-	        }
-	        
-	        if(resultIsNull)
-	        {
-	        	throw new SQLException("Request response not found");
 	        }
 	        
 	        con.close();
 		 }
 		 catch(SQLException  e) {
 				e.printStackTrace();
-				sqlResponse = ERROR;
+				System.out.println(sqlStringRequest);
 		 }
 		 
 		 return sqlResponse;
@@ -116,7 +107,7 @@ public class RequestTreatment {
 	 * Build and execute the insert question query
 	 * @param userQuestion the question asked by the user
 	 */
-	public static void prepareInsertAnswering(int intIdQuestionInserted,int responseId, int confidentIndicator, String conflictedKeywords )
+	public static void prepareInsertAnswering(int intIdQuestionInserted, String responseId, int confidentIndicator, String conflictedKeywords )
 	{
 		String date = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
 		
@@ -126,6 +117,8 @@ public class RequestTreatment {
 		String valuesInsert = "('"+ intIdQuestionInserted + "', '" + responseId + "', '" + date + "', '"+ confidentIndicator + "', " + conflictedKeywords + ")";
 		
 		String stringRequest = UserDatabaseRequests.buildInsertAnsweringValues(valuesInsert);
+		
+		System.out.print(stringRequest);
 		
 		try{
 	    	Connection con = DriverManager.getConnection(UserConstants.getSqlUrl(), UserConstants.getSqlUser(), UserConstants.getSqlPassword());

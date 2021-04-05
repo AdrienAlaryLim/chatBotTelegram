@@ -1,5 +1,9 @@
 package user;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 public class UserConstants 
 {
 	// Define your url to connect to your database with your database name
@@ -22,6 +26,13 @@ public class UserConstants
 	// Define your telegram bot username
 	// ex: MyTelegramBotUsername
 	private static final String botUsername = "MyTelegramBotUsername";
+	
+	// Define your admin telegram channels
+	// ex: Arrays.asList("channelAdmin1", "channelAdmin2")
+	private static final List<String> listOfAdminChannels = Arrays.asList("channelAdmin1", "channelAdmin2");
+	
+	// Define your admin telegram commands
+	private static final List<String> listOfCommands = Arrays.asList("/replayUnanswered");
 
 	public static String getSqlUrl() {
 		return sqlUrl;
@@ -41,5 +52,13 @@ public class UserConstants
 
 	public static String getBotUsername() {
 		return botUsername;
+	}
+
+	public static List<String> getListofadminchannels() {
+		return listOfAdminChannels;
+	}
+
+	public static List<String> getListofcommands() {
+		return listOfCommands;
 	}
 }

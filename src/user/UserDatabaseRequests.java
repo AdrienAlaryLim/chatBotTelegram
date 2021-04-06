@@ -33,6 +33,9 @@ public class UserDatabaseRequests {
 			+ "INNER JOIN mots_cles ON mots_cles.id_mot_cle = contenir.id_mot_cle "
 			+ "WHERE mots_cles.mot = ";
 	
+	private static final String SELECT_QUESTIONS_UNANSWERED = "SELECT question FROM questions q "
+			+ "WHERE q.id_question NOT IN (SELECT repondre.id_question FROM repondre)";
+	
 	private static final String COLUMN_QUESTION = "QUESTION";
 	
 	private static final String COLUMN_MOT = "MOT";
@@ -157,6 +160,15 @@ public class UserDatabaseRequests {
 		
 	}
 	
+	/**
+	 * Build the request "select questions without responses"
+	 * @return listOfQuestions
+	 */
+	public static String buildSelectQuestionsUnanswered() {
+		
+		return SELECT_QUESTIONS_UNANSWERED ;
+		
+	}
 	
 	/**
 	 * Return the string for column "COLUMN_QUESTION"

@@ -26,6 +26,7 @@ public class Treatment {
 		userMessageText = userMessageText.replace("\"", " ");
 		userMessageText = userMessageText.replace("\\", " ");
 		userMessageText = userMessageText.replace("?", " ");
+		userMessageText = userMessageText.replace("  ", " ");
 		
 		try {
 			System.out.println(" Try to found question");

@@ -1,13 +1,16 @@
 package core;
 
+import static java.util.Collections.reverseOrder;
+
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Iterator;
+import java.util.Comparator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
+import java.util.stream.Collectors;
 
+import user.UserConstants;
 import user.UserDatabaseRequests;
 
 public class Treatment {
@@ -63,7 +66,7 @@ public class Treatment {
 				int intIdQuestionInserted = Integer.valueOf(resultReturnIdQuestion);
 					
 				List<String> splitWords = new ArrayList<String>(Arrays.asList(userMessageText.split(" ")));
-		    
+					    
 			    String sqlArrayKeywordFilter = buildSqlFilterString(splitWords);
 			    
 			    System.out.println(" Search related keywords matching to : " + sqlArrayKeywordFilter);
@@ -73,7 +76,7 @@ public class Treatment {
 			    if(Boolean.FALSE.equals(keyWordsFound.isEmpty()))
 		        {
 			    	System.out.println(" Search the highest number of matching keywords");
-		        	HashMap<String, Integer> mapOfKeywords = new HashMap<>();
+			    	LinkedHashMap<String, Integer> mapOfKeywords = new LinkedHashMap<>();
 		        	
 		        	List<String> listOfMaxMatchingKeywords = getHigestFoundKeyword(mapOfKeywords, keyWordsFound, splitWords);
 		        	
@@ -81,7 +84,9 @@ public class Treatment {
 		        	
 			    	System.out.println(" Return the response with the higher keyword rating");
 			    	
-			    	int confidenceIndicator = setConfidenceIndicatorToKeywords(listIdKeywords);
+			    	Map.Entry<String,Integer> entry = mapOfKeywords.entrySet().iterator().next();
+			    		int confidenceIndicator = entry.getValue();
+			    	
 			    	
 			    	System.out.println(" Give a keyword confidence indicator : " + confidenceIndicator);
 			    	
@@ -175,21 +180,21 @@ public class Treatment {
 	 * @param listOfIdQuestion
 	 * @return int
 	 */
-	private static List<String> getHigestFoundKeyword(HashMap<String, Integer> mapOfKeyword, List<String> listOfKeyword, List<String> splitWords)
+	private static List<String> getHigestFoundKeyword(LinkedHashMap<String, Integer> mapOfKeyword, List<String> listOfKeyword, List<String> splitWords)
     {
 		
 		List<String> maxMatchingKeywords = new ArrayList<>();
+		List<String> resultMaxKeywordConfident = new ArrayList<>();
 		
-		//int keywordMostRepresented = 0;
 		int countMaxKeywordFound = 0;
-		
+		List<Integer> nbWordsInKeyword = new ArrayList<Integer>();
 		
 		for(String keywords : listOfKeyword)
         {
         	mapOfKeyword.put(keywords,0);
         	
         	List<String> wordSplitted = new ArrayList<String>(Arrays.asList(keywords.split("/")));
-        	int countKeywordFound = mapOfKeyword.get(keywords);
+        	int countKeywordFound = Math.round(mapOfKeyword.get(keywords));
         	
         	for(String word : wordSplitted)
         	{
@@ -208,47 +213,76 @@ public class Treatment {
         				countMaxKeywordFound = countKeywordFound;
         				maxMatchingKeywords.clear();
         				maxMatchingKeywords.add(keywords);
+        				nbWordsInKeyword.add(wordSplitted.size());
             		}
         			
         		}
         	}
         }
-        System.out.println(" Map complete Keywords found: " + mapOfKeyword.toString());
 		
-		HashMap<String, Integer> mapOfMostQuestionsFound = new HashMap<>();
+		resultMaxKeywordConfident = setSetConfidence(mapOfKeyword, splitWords.size());
 		
-		Iterator<Entry<String, Integer>> it = mapOfKeyword.entrySet().iterator();
-	    while (it.hasNext()) {
-	        Map.Entry<String, Integer> pair = (Map.Entry<String, Integer>)it.next();
-	        if(pair.getValue().equals(countMaxKeywordFound))
-			{
-				mapOfMostQuestionsFound.put(pair.getKey(),(Integer) pair.getValue());
-			}
-	        it.remove();
-	    }
-	    
-	    mapOfKeyword.clear();
-	    mapOfKeyword.putAll(mapOfMostQuestionsFound);
-	    
-	    System.out.println(" Keywords found: " + mapOfMostQuestionsFound.toString());
-		
-		return maxMatchingKeywords;
+		return resultMaxKeywordConfident;
     }
 	
 	/**
-	 * Set the confidence indicator to keywords
-	 * @param mapOfQuestionsFound
-	 * @return int
+	 * Set confidence indicator in the map. Based on 100 = max value
+	 * @param mapOfKeyword
+	 * @param nbInputPhraseWords
 	 */
-	private static int setConfidenceIndicatorToKeywords(List<String> listOfMaxKeywords)
+	private static List<String> setSetConfidence(LinkedHashMap<String, Integer> mapOfKeyword, Integer nbInputPhraseWords)
     {
-		int confidenceIndicator = 100;
-		System.out.println(" Number of conflicted : " + listOfMaxKeywords.size());
-		confidenceIndicator = confidenceIndicator / listOfMaxKeywords.size();
+		List<String> resultKeepKeyword = new ArrayList<>();
+		Integer maxConfidentKeep = 0;
 		
-		return confidenceIndicator;
+	    for (Map.Entry<String, Integer> m : mapOfKeyword.entrySet())
+	    {
+	    	Integer nbTotalKWordSplitted = new ArrayList<String>(Arrays.asList(m.getKey().split("/"))).size();
+	    	
+	    	Integer confident = calculConfidentKwFound(m.getValue(), nbInputPhraseWords, nbTotalKWordSplitted);
+	    	
+	    	m.setValue(confident);
+	    	
+	    	if(confident > maxConfidentKeep)
+	    	{
+	    		maxConfidentKeep = confident;
+	    	}
+	    }
+	    
+	    //Keep -50% confidence of the max confidence in the map
+	    Integer halfConsistantKeep = Math.round(maxConfidentKeep / 2);
+	    
+	    mapOfKeyword.entrySet().removeIf(entry -> entry.getValue() < halfConsistantKeep);
+	    System.out.println(" Keywords condident found: " + mapOfKeyword.toString());
+
+	    mapOfKeyword.entrySet()
+	    .stream()
+	    .sorted(Map.Entry.comparingByValue(Comparator.reverseOrder())) 
+	    .forEachOrdered(x -> {
+	    		mapOfKeyword.put(x.getKey(), x.getValue());
+	    		resultKeepKeyword.add(x.getKey());
+	    	});
+	    
+	    System.out.println(" Keywords condident found: " + mapOfKeyword.toString());
+	    
+	    return resultKeepKeyword;
     }
 	
+	private static Integer calculConfidentKwFound(Integer nbKwFound, Integer valueToDecayUserQuestion, Integer valueToDecayKwFound)
+	{
+		
+		if(valueToDecayUserQuestion == 0 || valueToDecayUserQuestion == null)
+		{
+			return 0;
+		}
+		
+		Integer confidenceUserQuestion = UserConstants.getConfidentQuestionBased() * nbKwFound / valueToDecayUserQuestion;
+		Integer confidenceKwFound = UserConstants.getConfidentKeywordFoundBased() * nbKwFound / valueToDecayKwFound;
+		Integer result = confidenceUserQuestion + confidenceKwFound;
+		
+		return result;
+	}
+
 	/**
 	 * Return the string of the conflicted id questions
 	 * @param mapOfQuestionsFound

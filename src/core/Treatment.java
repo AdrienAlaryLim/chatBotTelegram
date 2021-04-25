@@ -30,6 +30,7 @@ public class Treatment {
 		userMessageText = userMessageText.replace("\\", " ");
 		userMessageText = userMessageText.replace("?", " ");
 		userMessageText = userMessageText.replace("  ", " ");
+		userMessageText = userMessageText.toLowerCase();
 		
 		try {
 			System.out.println(" Try to found question");

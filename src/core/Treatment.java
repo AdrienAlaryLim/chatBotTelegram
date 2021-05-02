@@ -1,13 +1,12 @@
 package core;
 
+import java.text.Normalizer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
-import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.apache.commons.codec.language.Soundex;
 
@@ -25,13 +24,11 @@ public class Treatment {
 	{		
 		System.out.println("Begin treatment");
 		String botResponse = null;
-		Boolean questionExists = Boolean.FALSE;
-		userMessageText = userMessageText.replace("'", " ");
-		userMessageText = userMessageText.replace("\"", " ");
-		userMessageText = userMessageText.replace("\\", " ");
-		userMessageText = userMessageText.replace("?", " ");
-		userMessageText = userMessageText.replace("  ", " ");
+		Boolean questionExists = Boolean.FALSE;		
+		userMessageText = Normalizer.normalize(userMessageText, Normalizer.Form.NFD).replaceAll("[\u0300-\u036F]", "");
 		userMessageText = userMessageText.toLowerCase();
+		userMessageText = userMessageText.replaceAll("[^A-Za-z0-9 ]"," ");
+		userMessageText = userMessageText.trim().replaceAll(" +", " ");
 		
 		try {
 			System.out.println(" Try to found question");

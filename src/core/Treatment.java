@@ -1,14 +1,14 @@
 package core;
 
-import static java.util.Collections.reverseOrder;
-
+import java.text.Normalizer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
+
+import org.apache.commons.codec.language.Soundex;
 
 import user.UserConstants;
 import user.UserDatabaseRequests;
@@ -24,13 +24,11 @@ public class Treatment {
 	{		
 		System.out.println("Begin treatment");
 		String botResponse = null;
-		Boolean questionExists = Boolean.FALSE;
-		userMessageText = userMessageText.replace("'", " ");
-		userMessageText = userMessageText.replace("\"", " ");
-		userMessageText = userMessageText.replace("\\", " ");
-		userMessageText = userMessageText.replace("?", " ");
-		userMessageText = userMessageText.replace("  ", " ");
+		Boolean questionExists = Boolean.FALSE;		
+		userMessageText = Normalizer.normalize(userMessageText, Normalizer.Form.NFD).replaceAll("[\u0300-\u036F]", "");
 		userMessageText = userMessageText.toLowerCase();
+		userMessageText = userMessageText.replaceAll("[^A-Za-z0-9 ]"," ");
+		userMessageText = userMessageText.trim().replaceAll(" +", " ");
 		
 		try {
 			System.out.println(" Try to found question");
@@ -116,6 +114,7 @@ public class Treatment {
 			}
 			catch(Exception exectionSecond)
 			{
+				System.out.println(" Error no matching keywords found");
 				botResponse = userMessageText;
 			}
 		}
@@ -137,7 +136,7 @@ public class Treatment {
 	    {
 			if(count == 1)
 			{
-				sqlStringArrayFilter = "LIKE '%" + string + "/%'";
+				sqlStringArrayFilter = "SOUNDS LIKE '%" + string + "/%'";
 				count ++;
 			}
 			else 
@@ -181,7 +180,7 @@ public class Treatment {
 	 * @param listOfIdQuestion
 	 * @return int
 	 */
-	private static List<String> getHigestFoundKeyword(LinkedHashMap<String, Integer> mapOfKeyword, List<String> listOfKeyword, List<String> splitWords)
+	private static List<String> getHigestFoundKeyword(LinkedHashMap<String, Integer> mapOfKeyword, List<String> sqlResultListOfKeyword, List<String> userSplitWords)
     {
 		
 		List<String> maxMatchingKeywords = new ArrayList<>();
@@ -189,9 +188,18 @@ public class Treatment {
 		
 		int countMaxKeywordFound = 0;
 		List<Integer> nbWordsInKeyword = new ArrayList<Integer>();
+		Soundex soundex = new Soundex();
 		
-		for(String keywords : listOfKeyword)
+		List<String> sdxUserSplitWords = new ArrayList<String>();
+		
+		for(String userWord : userSplitWords)
+		{
+			sdxUserSplitWords.add(soundex.encode(userWord));
+		}
+		
+		for(String keywords : sqlResultListOfKeyword)
         {
+			
         	mapOfKeyword.put(keywords,0);
         	
         	List<String> wordSplitted = new ArrayList<String>(Arrays.asList(keywords.split("/")));
@@ -199,7 +207,9 @@ public class Treatment {
         	
         	for(String word : wordSplitted)
         	{
-        		if(splitWords.contains(word)) 
+        		String phoneticValue = soundex.encode(word);
+    			
+        		if(sdxUserSplitWords.contains(phoneticValue))
         		{
         			mapOfKeyword.put(keywords, mapOfKeyword.get(keywords) + 1); 
         			countKeywordFound++;
@@ -216,12 +226,11 @@ public class Treatment {
         				maxMatchingKeywords.add(keywords);
         				nbWordsInKeyword.add(wordSplitted.size());
             		}
-        			
         		}
         	}
         }
 		
-		resultMaxKeywordConfident = setSetConfidence(mapOfKeyword, splitWords.size());
+		resultMaxKeywordConfident = setSetConfidence(mapOfKeyword, userSplitWords.size());
 		
 		return resultMaxKeywordConfident;
     }

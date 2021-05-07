@@ -1,1 +1,1 @@
-worker: sh target/bin/chatBotTelegram
+web: java -jar ./bin/escaladobot

@@ -36,17 +36,17 @@ public class UserDatabaseRequests {
 	private static final String SELECT_QUESTIONS_UNANSWERED = "SELECT question FROM questions q "
 			+ "WHERE q.id_question NOT IN (SELECT repondre.id_question FROM repondre)";
 	
-	private static final String COLUMN_QUESTION = "QUESTION";
+	private static final String COLUMN_QUESTION = "question";
 	
-	private static final String COLUMN_MOT = "MOT";
+	private static final String COLUMN_MOT = "mot";
 	
-	private static final String COLUMN_ID_MOT_CLE = "ID_MOT_CLE";
+	private static final String COLUMN_ID_MOT_CLE = "id_mot_cle";
 	
-	private static final String COLUMN_ID_QUESTION = "ID_QUESTION";
+	private static final String COLUMN_ID_QUESTION = "id_question";
 	
-	private static final String COLUMN_RESPONSE = "RESPONSE";
+	private static final String COLUMN_RESPONSE = "response";
 	
-	private static final String COLUMN_ID_RESPONSE = "ID_REPONSE";
+	private static final String COLUMN_ID_RESPONSE = "id_reponse";
 	
 	/**
 	 * Build the request to find question by the given id

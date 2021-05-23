@@ -1,1 +1,1 @@
-web: java -jar ./target/chatBotTelegram-0.0.1-SNAPSHOT.war
+web: java $JAVA_OPTS -cp build/staging:build/staging/* core.Main

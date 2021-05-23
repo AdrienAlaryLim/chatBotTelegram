@@ -1,1 +1,1 @@
-web: java -jar ./bin/escaladobot
+web: java -jar ./target/chatBotTelegram-0.0.1-SNAPSHOT.war

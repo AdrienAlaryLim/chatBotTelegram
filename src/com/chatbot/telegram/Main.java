@@ -1,4 +1,4 @@
-package core;
+package com.chatbot.telegram;
 
 import org.telegram.telegrambots.meta.TelegramBotsApi;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;

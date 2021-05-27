@@ -1,4 +1,4 @@
-package core;
+package com.chatbot.telegram.core;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -8,11 +8,10 @@ import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
-import user.UserConstants;
-import user.UserDatabaseRequests;
+import com.chatbot.telegram.config.UserConstants;
+import com.chatbot.telegram.config.UserDatabaseRequests;
 
 public class RequestTreatment {
 	

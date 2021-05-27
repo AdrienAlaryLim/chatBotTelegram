@@ -1,4 +1,4 @@
-package user;
+package com.chatbot.telegram.config;
 
 public class UserDatabaseRequests {
 	
@@ -60,8 +60,8 @@ public class UserDatabaseRequests {
 	
 	/**
 	 * Build the request to find question by the given id
-	 * @param idQuestion the question id
-	 * @return String selectQuestionById
+	 * @param question the question's words
+	 * @return String selectQuestionByWords
 	 */
 	public static String buildSelectQuestionByWholeWords(String question) 
 	{

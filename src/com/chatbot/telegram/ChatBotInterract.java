@@ -1,4 +1,4 @@
-package core;
+package com.chatbot.telegram;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -8,8 +8,10 @@ import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
-import user.UserConstants;
-import user.UserDatabaseRequests;
+import com.chatbot.telegram.config.UserConstants;
+import com.chatbot.telegram.config.UserDatabaseRequests;
+import com.chatbot.telegram.core.RequestTreatment;
+import com.chatbot.telegram.core.Treatment;
 
 public class ChatBotInterract extends TelegramLongPollingBot 
 {
@@ -39,18 +41,23 @@ public class ChatBotInterract extends TelegramLongPollingBot
 	        // Create a message object object
 	        SendMessage message = new SendMessage();
 	        
+	        // Check if the message is a /command from an administrator channel
 	        if(userMessageText.charAt(0) == '/' && UserConstants.getListOfCommands().contains(userMessageText) 
 	        		&& UserConstants.getListOfAdminChannels().contains(strChatId))
 	        {
 	        	List<String> listOfQuestions = new ArrayList<>();
 	        	
+	        	// Collect all the question where the bot hasn't answer
 	        	listOfQuestions = RequestTreatment.returnQueryArrayResponse(UserDatabaseRequests.buildSelectQuestionsUnanswered(), UserDatabaseRequests.getColumnQuestion());
 	        
+	        	// Function to play again questions that the bot has not give any answer
 	        	replayQuestionsUnanswered(listOfQuestions, update);
 	        }
 	        
+	        // Set the channelId to reply on the right user
 	        message.setChatId(strChatId);
 	        
+	        // Set the bot response from the user message based
 	        message.setText(Treatment.returnMessage(userMessageText));
 	        
 	        try {

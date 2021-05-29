@@ -112,7 +112,6 @@ public class RequestTreatment {
 		
 		conflictedKeywords = conflictedKeywords == null ?  null : "'" + conflictedKeywords + "'";
 		
-		System.out.println("('"+ intIdQuestionInserted + "', '" + responseId + "', '" + date + "', '"+ confidentIndicator + "', " + conflictedKeywords + ")");
 		String valuesInsert = "('"+ intIdQuestionInserted + "', '" + responseId + "', '" + date + "', '"+ confidentIndicator + "', " + conflictedKeywords + ")";
 		
 		String stringRequest = UserDatabaseRequests.buildInsertAnsweringValues(valuesInsert);

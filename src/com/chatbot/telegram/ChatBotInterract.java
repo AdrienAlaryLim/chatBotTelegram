@@ -45,13 +45,21 @@ public class ChatBotInterract extends TelegramLongPollingBot
 	        if(userMessageText.charAt(0) == '/' && UserConstants.getListOfCommands().contains(userMessageText) 
 	        		&& UserConstants.getListOfAdminChannels().contains(strChatId))
 	        {
-	        	List<String> listOfQuestions = new ArrayList<>();
-	        	
-	        	// Collect all the question where the bot hasn't answer
-	        	listOfQuestions = RequestTreatment.returnQueryArrayResponse(UserDatabaseRequests.buildSelectQuestionsUnanswered(), UserDatabaseRequests.getColumnQuestion());
-	        
-	        	// Function to play again questions that the bot has not give any answer
-	        	replayQuestionsUnanswered(listOfQuestions, update);
+	        	// Switch for position in command arrayList
+	        	switch (UserConstants.getListOfAdminChannels().indexOf(strChatId)) {
+				case 0:
+					List<String> listOfQuestions = new ArrayList<>();
+		        	
+		        	// Collect all the question where the bot hasn't answer
+		        	listOfQuestions = RequestTreatment.returnQueryArrayResponse(UserDatabaseRequests.buildSelectQuestionsUnanswered(), UserDatabaseRequests.getColumnQuestion());
+		        
+		        	// Function to play again questions that the bot has not give any answer
+		        	replayQuestionsUnanswered(listOfQuestions, update);
+					break;
+
+				default:
+					break;
+				}
 	        }
 	        
 	        // Set the channelId to reply on the right user

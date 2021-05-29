@@ -1,4 +1,4 @@
-package user;
+package com.chatbot.telegram.config;
 
 import java.util.Arrays;
 import java.util.List;

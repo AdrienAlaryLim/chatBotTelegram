@@ -13,7 +13,7 @@ Elle permet de modifier les comportements du bot nouvellement créé.
 
 ## Installation
 Désormais, vous possédez votre bot. Vous pouvez récupérer le code source de ce dépôt, et le déposer dans un répertoire <b>/chatBotTelegram</b> </br>
-Assurez vous de modifier les variables situées dans <b>chatBotTelegram/src/user/UserConstants.java</b> </br>
+Assurez vous de modifier les variables situées dans <b>src/com/chatbot/telegram/config/UserConstants.java</b> </br>
 C'est à cet endroit que vous indiquerez le nom d'utilisateur de votre bot, sa clé API, et votre URL d'accès à votre base de données.</br>
 ```java
 public class UserConstants 

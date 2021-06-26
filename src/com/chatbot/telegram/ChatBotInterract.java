@@ -2,6 +2,7 @@ package com.chatbot.telegram;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
@@ -10,13 +11,11 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import com.chatbot.telegram.config.UserConstants;
 import com.chatbot.telegram.config.UserDatabaseRequests;
-import com.chatbot.telegram.core.RequestTreatment;
+import com.chatbot.telegram.core.JsonReader;
 import com.chatbot.telegram.core.Treatment;
 
 public class ChatBotInterract extends TelegramLongPollingBot 
 {
-	String sqlUrl = UserConstants.getSqlUrl();
-	
 	@Override
     public String getBotToken() {
         return UserConstants.getBotToken();
@@ -48,13 +47,17 @@ public class ChatBotInterract extends TelegramLongPollingBot
 	        	// Switch for position in command arrayList
 	        	switch (UserConstants.getListOfAdminChannels().indexOf(strChatId)) {
 				case 0:
-					List<String> listOfQuestions = new ArrayList<>();
+					List<Map<String, String>> listOfMapQuestions = new ArrayList<>();
 		        	
-		        	// Collect all the question where the bot hasn't answer
-		        	listOfQuestions = RequestTreatment.returnQueryArrayResponse(UserDatabaseRequests.buildSelectQuestionsUnanswered(), UserDatabaseRequests.getColumnQuestion());
-		        
+					try {
+						listOfMapQuestions = JsonReader.callListJson(UserDatabaseRequests.getRequestQuestionsUnanswered());
+					}catch(Exception e)					{
+						e.printStackTrace();
+					}
+		        		
+		        	
 		        	// Function to play again questions that the bot has not give any answer
-		        	replayQuestionsUnanswered(listOfQuestions, update);
+		        	replayQuestionsUnanswered(listOfMapQuestions, update);
 					break;
 
 				default:
@@ -76,12 +79,12 @@ public class ChatBotInterract extends TelegramLongPollingBot
 	    }
 	}
 	
-	public void replayQuestionsUnanswered(List<String> listOfQuestions, Update update)
+	public void replayQuestionsUnanswered(List<Map<String, String>> listOfMapQuestions, Update update)
 	{
-		for(String question : listOfQuestions)
+		for(Map<String, String> mapQuestion : listOfMapQuestions)
 		{
 	        // Set variables
-	        String userMessageText = question;
+	        String userMessageText = mapQuestion.get(UserDatabaseRequests.getColumnQuestion());
 	        long chatId = update.getMessage().getChatId();
 	        String strChatId = String.valueOf(chatId);
 	        

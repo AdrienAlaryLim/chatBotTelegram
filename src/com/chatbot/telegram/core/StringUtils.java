@@ -13,6 +13,7 @@ public class StringUtils
 	 */
 	public static String stringNormalizer(String string)
 	{
+		string = string.replaceAll("œ","oe");
 		string = Normalizer.normalize(string, Normalizer.Form.NFD).replaceAll("[\u0300-\u036F]", "");
 		string = string.toLowerCase();
 		string = string.replaceAll("[^A-Za-z0-9 ]"," ");
@@ -23,7 +24,7 @@ public class StringUtils
 	
 	/**
 	 * Build a string shaped in array to be used as a filter in sql query
-	 * Example = "mot = SOUNDS LIKE '%mot1/%' OR mot = OR mot LIKE '%mot2/%'"
+	 * Example = "mot SOUNDS LIKE '%mot1/%' OR mot LIKE '%mot2/%'"
 	 * @param arrayString
 	 * @return String
 	 */
@@ -44,6 +45,23 @@ public class StringUtils
 	    		sqlStringArrayFilter = sqlStringArrayFilter + " OR mot LIKE '%" + string + "/%'";
 	    		count++;
 	    	}
+	    }
+	    return sqlStringArrayFilter;
+    }
+	
+	/**
+	 * Build a string shaped in array to be used as a filter in sql query
+	 * Example = "mot1/mot2/mot3/"
+	 * @param arrayString
+	 * @return String
+	 */
+	public static String buildSqlKeywordFilter(List<String> arrayString)
+    {
+		String sqlStringArrayFilter = "";
+		
+		for(String string : arrayString)
+	    {
+    		sqlStringArrayFilter = sqlStringArrayFilter + string + "/";
 	    }
 	    return sqlStringArrayFilter;
     }
@@ -83,23 +101,23 @@ public class StringUtils
 	 */
 	public static String getStringOfIdConflictedKeywords(List<String> listOfKeywordsId)
 	{
-		String conflictedQuestionsString = "{";
+		String conflictedKeywordsString = "{";
 		int count = 1;
 		
-	    for(String keywords : listOfKeywordsId)
+	    for(String keyword : listOfKeywordsId)
 	    {	        
-	        conflictedQuestionsString = conflictedQuestionsString + keywords;
+	    	conflictedKeywordsString = conflictedKeywordsString + keyword;
 	        
 	    	if(listOfKeywordsId.size() != count)
 	    	{
-	    		conflictedQuestionsString = conflictedQuestionsString + ",";
+	    		conflictedKeywordsString = conflictedKeywordsString + ",";
 	    		count++;
 	    	}else
 	    	{
-	    		conflictedQuestionsString = conflictedQuestionsString + "}";
+	    		conflictedKeywordsString = conflictedKeywordsString + "}";
 	    	}
 	    }
 	    
-	    return conflictedQuestionsString;
+	    return conflictedKeywordsString;
 	}
 }

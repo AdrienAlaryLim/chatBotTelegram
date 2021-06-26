@@ -2,11 +2,11 @@ package com.chatbot.telegram.config;
 
 public class UserDatabaseRequests {
 	
-	private static final String SELECT_QUESTION_BY_ID = "SELECT * FROM questions WHERE id_question = ";
+	//private static final String SELECT_QUESTION_BY_ID = "SELECT * FROM questions WHERE id_question = ";
 	
-	private static final String SELECT_QUESTION_BY_WHOLE_WORDS = "SELECT * FROM questions WHERE question = '";
+	//private static final String SELECT_QUESTION_BY_WHOLE_WORDS = "SELECT * FROM questions WHERE question = '";
 	
-	private static final String INSERT_QUESTION = "INSERT INTO questions (question, date_question) VALUES ";
+	//private static final String INSERT_QUESTION = "INSERT INTO questions (question, date_question) VALUES ";
 	
 	private static final String INSERT_ANSWERING = "INSERT INTO repondre (id_question, id_reponse, date_reponse, confiance, mots_cles_associes) VALUES ";
 	
@@ -44,29 +44,39 @@ public class UserDatabaseRequests {
 	
 	private static final String COLUMN_ID_QUESTION = "id_question";
 	
-	private static final String COLUMN_RESPONSE = "response";
+	private static final String COLUMN_RESPONSE = "reponse";
 	
 	private static final String COLUMN_ID_RESPONSE = "id_reponse";
 	
-	/**
-	 * Build the request to find question by the given id
-	 * @param idQuestion the question id
-	 * @return String selectQuestionById
-	 */
-	public static String buildSelectQuestionById(int idQuestion) 
-	{
-		return SELECT_QUESTION_BY_ID + String.valueOf(idQuestion);
-	}
+	private static final String URL_COLUMN_ID_QUESTION = "idQuestion=";
 	
-	/**
-	 * Build the request to find question by the given id
-	 * @param question the question's words
-	 * @return String selectQuestionByWords
-	 */
-	public static String buildSelectQuestionByWholeWords(String question) 
-	{
-		return SELECT_QUESTION_BY_WHOLE_WORDS + question + "'";
-	}
+	private static final String URL_COLUMN_ID_REPONSE = "idReponse=";
+	
+	private static final String URL_COLUMN_QUESTION = "question=";
+	
+	private static final String URL_COLUMN_DATE_QUESTION = "dateQuestion=";
+	
+	private static final String URL_COLUMN_MOTS_CLES = "motsCles=";
+	
+	private static final String REQUEST_QUESTION_BY_ID = "getQuestionById";
+	
+	private static final String REQUEST_QUESTION_BY_WORDS = "getQuestionByWords";
+	
+	private static final String INSERT_QUESTION = "insertQuestion";
+	
+	private static final String REQUEST_MOT_CLE_SOUNDS = "motCleSounds";
+	
+	private static final String REQUEST_GET_REPONSE_BY_MOT_CLE = "getReponseByMotCle";
+	
+	private static final String REQUEST_INSERT_REPONSE = "insertReponse";
+	
+	private static final String ULR_COLUMN_CONFIANCE = "confiance=";
+	
+	private static final String ULR_COLUMN_CONFLITS = "conflits=";
+	
+	private static final String REQUEST_REPONSE_BY_ID_QUESTION = "getReponseByIdQuestion";
+
+	private static final String REQUEST_QUESTIONS_UNANSWERED = "questionUnanswered";
 	
 	/**
 	 * Build the insert question values request
@@ -203,7 +213,7 @@ public class UserDatabaseRequests {
 	}
 
 	/**
-	 * Return the string for column "RESPONSE"
+	 * Return the string for column "REPONSE"
 	 * @return String
 	 */
 	public static String getColumnResponse() {
@@ -214,7 +224,128 @@ public class UserDatabaseRequests {
 	 * Return the string for column "ID_RESPONSE"
 	 * @return String
 	 */
-	public static String getColumnIdResponse() {
+	public static String getColumnIdReponse() {
 		return COLUMN_ID_RESPONSE;
 	}
+	
+	/**
+	 * Return the string for column "conflicts"
+	 * @return String
+	 */
+	public static String getColumnConflicts() {
+		return ULR_COLUMN_CONFLITS;
+	}
+	
+	/**
+	 * Return the string for column "CONFIANCE"
+	 * @return String
+	 */
+	public static String getColumnConfiance() {
+		return ULR_COLUMN_CONFIANCE;
+	}
+	
+	/**
+	 * Return the string for column "getQuestionById"
+	 * @return String
+	 */
+	public static String getRequestQuestionById() {
+		return REQUEST_QUESTION_BY_ID;
+	}
+	
+	/**
+	 * Return the string for column "getRequestQuestionByWords"
+	 * @return String
+	 */
+	public static String getRequestQuestionByWords() {
+		return REQUEST_QUESTION_BY_WORDS;
+	}
+	
+	/**
+	 * Return the string for column "idQuestion="
+	 * @return String
+	 */
+	public static String getUrlColumnIdQuestion() {
+		return URL_COLUMN_ID_QUESTION;
+	}
+	
+	/**
+	 * Return the string for column "idReponse="
+	 * @return String
+	 */
+	public static String getUrlColumnIdReponse() {
+		return URL_COLUMN_ID_REPONSE;
+	}
+	
+	/**
+	 * Return the string for column "question="
+	 * @return String
+	 */
+	public static String getUrlColumnQuestion() {
+		return URL_COLUMN_QUESTION;
+	}
+	
+	/**
+	 * Return the string for column "insertQuestion"
+	 * @return String
+	 */
+	public static String getRequestInsertQuestion() {
+		return INSERT_QUESTION;
+	}
+	
+	/**
+	 * Return the string for column "dateQuestion="
+	 * @return String
+	 */
+	public static String getUrlColumnDateQuestion() {
+		return URL_COLUMN_DATE_QUESTION;
+	}
+	
+	/**
+	 * Return the string for column "motCleSounds"
+	 * @return String
+	 */
+	public static String getRequestMotCleSounds() {
+		return REQUEST_MOT_CLE_SOUNDS;
+	}
+	
+	/**
+	 * Return the string for column "motsCles="
+	 * @return String
+	 */
+	public static String getUrlColumnMotsCles() {
+		return URL_COLUMN_MOTS_CLES;
+	}
+	
+	/**
+	 * Return the string for column "getReponseByMotCle"
+	 * @return String
+	 */
+	public static String getRequestReponseByMotCle() {
+		return REQUEST_GET_REPONSE_BY_MOT_CLE;
+	}
+	
+	/**
+	 * Return the string for column "insertReponse"
+	 * @return String
+	 */
+	public static String getRequestInsertReponse() {
+		return REQUEST_INSERT_REPONSE;
+	}
+	
+	/**
+	 * Return the string for column "getReponseByIdQuestion"
+	 * @return String
+	 */
+	public static String getRequestReponseByIdQuestion() {
+		return REQUEST_REPONSE_BY_ID_QUESTION;
+	}
+	
+	/**
+	 * Return the string for column "questionUnanswered"
+	 * @return String
+	 */
+	public static String getRequestQuestionsUnanswered() {
+		return REQUEST_QUESTIONS_UNANSWERED;
+	}
+	
 }

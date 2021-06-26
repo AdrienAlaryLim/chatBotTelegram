@@ -117,7 +117,6 @@ public class TreatmentFunctions
 	    Integer halfConsistantKeep = Math.round(maxConfidentKeep / 2);
 	    
 	    mapOfKeyword.entrySet().removeIf(entry -> entry.getValue() < halfConsistantKeep);
-	    System.out.println(" Keywords condident found: " + mapOfKeyword.toString());
 
 	    // Filter map as DESC order
 	    mapOfKeyword.entrySet()
@@ -128,7 +127,7 @@ public class TreatmentFunctions
 	    		resultKeepKeyword.add(x.getKey());
 	    	});
 	    
-	    System.out.println(" Keywords condident found: " + mapOfKeyword.toString());
+	    System.out.println(" Keywords confident found: " + mapOfKeyword.toString());
 	    
 	    // Return the confidence values refered to the keywords
 	    return resultKeepKeyword;
@@ -159,5 +158,14 @@ public class TreatmentFunctions
 		Integer result = confidenceUserQuestion + confidenceKwFound;
 		
 		return result;
+	}
+	
+	/**
+	 * Give a list of all values from a map
+	 * @param Map
+	 * @return 
+	 */
+	public static <T> List<T> getValuesFromMap(Map<?, T> map) {
+	    return new ArrayList<>(map.values());
 	}
 }

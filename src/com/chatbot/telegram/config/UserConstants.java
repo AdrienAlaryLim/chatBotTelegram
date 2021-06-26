@@ -5,29 +5,17 @@ import java.util.List;
 
 public class UserConstants 
 {
-	// Define your url to connect to your database with your database name
-	// ex : jdbc:mysql://127.0.0.1:3306/mydb_name
-	private static final String sqlUrl = "jdbc:mysql://127.0.0.1:3306/chatbot_db";
-	
-	// Your database user
-	// ex : john
-	private static final String sqlUser = "root";
-	
-	// Your password to acces database
-	// ex : Pa$$w0rd
-	private static final String sqlPassword = "";
-	
 	// Define your telegram bot token API key
 	// ex: 1234567890:MyTelegramBotAPIKeyHash
-	private static final String botToken = "1494782161:AAHJulfsPFXCSjsvceo4PZpXND8uoDvxdVM";
+	private static final String botToken = System.getenv().get("BOT_TOKEN");
 	
 	// Define your telegram bot username
 	// ex: MyTelegramBotUsername
-	private static final String botUsername = "EscaladoBot";
-
+	private static final String botUsername = System.getenv().get("BOT_USERNAME");
+	
 	// Define your admin telegram channels
 	// ex: Arrays.asList("channelAdmin1", "channelAdmin2")
-	private static final List<String> listOfAdminChannels = Arrays.asList("1056950486");
+	private static final List<String> listOfAdminChannels = Arrays.asList("channelAdmin1", "channelAdmin2");
 	
 	// Define your admin telegram commands
 	private static final List<String> listOfCommands = Arrays.asList("/replayUnanswered");
@@ -45,18 +33,6 @@ public class UserConstants
 	
 	// Define default string when bot can't answer the question
 	private static final String responseNotFound = "Je ne suis pas assez renseigné pour répondre à cette question, réessayez dans quelques jours !";
-
-	public static String getSqlUrl() {
-		return sqlUrl;
-	}
-
-	public static String getSqlUser() {
-		return sqlUser;
-	}
-
-	public static String getSqlPassword() {
-		return sqlPassword;
-	}
 
 	public static String getBotToken() {
 		return botToken;

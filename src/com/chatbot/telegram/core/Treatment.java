@@ -56,7 +56,7 @@ public class Treatment
 				Map<String, String> reponseGet = JsonReader.callJson(UserDatabaseRequests.getRequestReponseByIdQuestion(), UserDatabaseRequests.getUrlColumnIdQuestion(), idQuestion);
 				
 				
-				botResponse = reponseGet.get(UserDatabaseRequests.getColumnIdQuestion());
+				botResponse = reponseGet.get(UserDatabaseRequests.getColumnResponse());
 				
 				// If question or response not found, generate error to get the research treatment block
 				if(botResponse == null || botResponse.trim().isEmpty())

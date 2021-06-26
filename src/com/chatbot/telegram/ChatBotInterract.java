@@ -16,8 +16,6 @@ import com.chatbot.telegram.core.Treatment;
 
 public class ChatBotInterract extends TelegramLongPollingBot 
 {
-	String sqlUrl = UserConstants.getSqlUrl();
-	
 	@Override
     public String getBotToken() {
         return UserConstants.getBotToken();

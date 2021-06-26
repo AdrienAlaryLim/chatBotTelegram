@@ -29,7 +29,7 @@ public class UserConstants
 	private static final Integer CONFIDENT_KEWORD_FOUND_BASED = 50;
 	
 	// Define the URL that is used to call GET request
-	private static final String URL_GET_REQUEST = "http://127.0.0.1/chatbot/index.php?request=";
+	private static final String URL_GET_REQUEST = System.getenv().get("WEBSITE_URL_REQUEST");
 	
 	// Define default string when bot can't answer the question
 	private static final String responseNotFound = "Je ne suis pas assez renseigné pour répondre à cette question, réessayez dans quelques jours !";

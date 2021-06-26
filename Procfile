@@ -1,1 +1,1 @@
-web: java $JAVA_OPTS -cp build/staging:build/staging/* core.Main
+web: java -jar target/java-getting-started-1.0.jar

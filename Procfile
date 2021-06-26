@@ -1,1 +1,1 @@
-web: java -jar target/escaladobot.jar
+web: java $JAVA_OPTS -jar target/*.war

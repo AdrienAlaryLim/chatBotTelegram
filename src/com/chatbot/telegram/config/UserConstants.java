@@ -7,18 +7,18 @@ public class UserConstants
 {
 	// Define your telegram bot token API key
 	// ex: 1234567890:MyTelegramBotAPIKeyHash
-	private static final String botToken = System.getenv().get("BOT_TOKEN");
+	private static final String BOT_TOKEN = System.getenv().get("BOT_TOKEN");
 	
 	// Define your telegram bot username
 	// ex: MyTelegramBotUsername
-	private static final String botUsername = System.getenv().get("BOT_USERNAME");
-	
+	private static final String BOT_USERNAME = System.getenv().get("BOT_USERNAME");
+
 	// Define your admin telegram channels
 	// ex: Arrays.asList("channelAdmin1", "channelAdmin2")
-	private static final List<String> listOfAdminChannels = Arrays.asList("channelAdmin1", "channelAdmin2");
+	private static final List<String> LIST_OF_ADMIN_CHANNELS = Arrays.asList("channelAdmin1", "channelAdmin2");
 	
 	// Define your admin telegram commands
-	private static final List<String> listOfCommands = Arrays.asList("/replayUnanswered");
+	private static final List<String> LIST_OF_COMMANDS = Arrays.asList("/replayUnanswered");
 
 	// Define your confident balance based on user question accuracy
 	// (exemple with 50 - 50, to reach 100 max based value)
@@ -32,22 +32,22 @@ public class UserConstants
 	private static final String URL_GET_REQUEST = System.getenv().get("WEBSITE_URL_REQUEST");
 	
 	// Define default string when bot can't answer the question
-	private static final String responseNotFound = "Je ne suis pas assez renseigné pour répondre à cette question, réessayez dans quelques jours !";
+	private static final String RESPONSE_NOT_FOUND = "Je ne suis pas assez renseigné pour répondre à cette question, réessayez dans quelques jours !";
 
 	public static String getBotToken() {
-		return botToken;
+		return BOT_TOKEN;
 	}
 
 	public static String getBotUsername() {
-		return botUsername;
+		return BOT_USERNAME;
 	}
 
 	public static List<String> getListOfAdminChannels() {
-		return listOfAdminChannels;
+		return LIST_OF_ADMIN_CHANNELS;
 	}
 
 	public static List<String> getListOfCommands() {
-		return listOfCommands;
+		return LIST_OF_COMMANDS;
 	}
 	
 	public static Integer getConfidentQuestionBased(){
@@ -63,7 +63,7 @@ public class UserConstants
 	}
 
 	public static String getResponseNotFound() {
-		return responseNotFound;
+		return RESPONSE_NOT_FOUND;
 	}
 	
 }

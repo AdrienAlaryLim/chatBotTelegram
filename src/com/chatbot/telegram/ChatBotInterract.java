@@ -79,6 +79,11 @@ public class ChatBotInterract extends TelegramLongPollingBot
 	    }
 	}
 	
+	/**
+	 * Use the command to replay all the question that hasn't got any response
+	 * @param listOfMapQuestions
+	 * @param update
+	 */
 	public void replayQuestionsUnanswered(List<Map<String, String>> listOfMapQuestions, Update update)
 	{
 		for(Map<String, String> mapQuestion : listOfMapQuestions)
